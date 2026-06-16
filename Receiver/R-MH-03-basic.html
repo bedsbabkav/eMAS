@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết thông điệp (Basic) - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6633; --primary-dark: #E65A2E; --primary-light: rgba(255,102,51,0.08);
+            --teal: #4DD4D5; --success: #52C41A; --warning: #FAAD14; --info: #1890FF; --danger: #FF4D4F;
+            --n900: #1A1A1A; --n800: #333; --n600: #666; --n400: #999;
+            --n200: #E0E0E0; --n100: #F0F0F0; --n50: #F7F7F7; --white: #FFF;
+            --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--n800); background: var(--n50); }
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: var(--white); border-right: 1px solid var(--n200); padding: 16px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .logo { margin-bottom: 32px; padding: 8px; }
+        .logo-name { font-size: 16px; font-weight: 600; }
+        .logo-bkav { color: var(--primary); font-weight: 700; }
+        .logo-emas { color: var(--teal); font-weight: 600; }
+        .logo-sub { font-size: 11px; color: var(--n400); margin-top: 2px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: var(--n600); text-decoration: none; border-radius: 6px; transition: all 0.15s; font-size: 13px; }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+        .nav-badge { margin-left: auto; background: var(--primary); color: white; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 99px; }
+        .main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+        .topbar { background: var(--white); border-bottom: 1px solid var(--n200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; }
+        .topbar-user { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 600; flex-shrink: 0; }
+        .user-name { font-size: 13px; font-weight: 500; color: var(--n900); }
+        .user-id { font-size: 11px; color: var(--n400); }
+        .btn-logout { font-size: 12px; color: var(--n400); text-decoration: none; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--n200); }
+        .btn-logout:hover { color: var(--danger); background: #fff1f0; border-color: var(--danger); }
+        .main-body { flex: 1; padding: 24px; overflow: auto; }
+        .breadcrumb { display: flex; gap: 6px; font-size: 12px; color: var(--n600); margin-bottom: 6px; }
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+        .page-title { font-size: 20px; font-weight: 700; color: var(--n900); }
+        .badge-status { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; margin-top: 6px; }
+        .badge-pending { background: #fff7e6; color: #d46b08; }
+        .meta-bar { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 20px; margin-bottom: 16px; }
+        .meta-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--n900); margin-bottom: 6px; }
+        .meta-line code { font-family: 'Courier New', monospace; font-size: 11px; color: var(--n600); }
+        .meta-arrow { color: var(--primary); font-weight: 600; }
+        .meta-line-sub { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--n600); }
+        .meta-line-sub code { font-family: 'Courier New', monospace; font-size: 11px; }
+        .meta-sep { color: var(--n200); }
+        .mode-badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; background: #f0e6ff; color: #722ED1; }
+        .detail-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+        .panel { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .panel-header { padding: 14px 20px; border-bottom: 1px solid var(--n200); font-size: 14px; font-weight: 600; color: var(--n900); }
+        .panel-body { padding: 20px; }
+        .doc-viewer { font-size: 13px; line-height: 1.8; color: var(--n800); }
+        .doc-title { font-size: 15px; font-weight: 700; text-align: center; margin-bottom: 16px; color: var(--n900); }
+        .doc-section { margin-bottom: 14px; }
+        .doc-section-title { font-weight: 600; margin-bottom: 4px; }
+        .hash-check { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; font-size: 12px; color: #237804; font-weight: 500; margin-bottom: 16px; }
+        .timeline { position: relative; padding-left: 28px; }
+        .timeline::before { content: ''; position: absolute; left: 7px; top: 20px; bottom: 20px; width: 2px; background: var(--n200); }
+        .tl-item { position: relative; margin-bottom: 20px; }
+        .tl-dot { position: absolute; left: -21px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--white); border: 3px solid var(--n200); z-index: 1; }
+        .tl-item.ev-a1 .tl-dot { border-color: var(--info); }
+        .tl-item.ev-d1 .tl-dot { border-color: var(--warning); }
+        .tl-item.ev-e1 .tl-dot { border-color: var(--success); }
+        .tl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .tl-title { font-size: 13px; font-weight: 600; color: var(--n900); }
+        .ev-badge { display: inline-flex; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+        .ev-badge.a1 { background: #e6f7ff; color: #0958d9; }
+        .ev-badge.d1 { background: #fff7e6; color: #d46b08; }
+        .ev-badge.e1 { background: #f6ffed; color: #237804; }
+        .tl-time { font-size: 11px; color: var(--n600); margin-bottom: 8px; }
+        .tl-body { background: var(--n50); border-radius: 6px; padding: 10px 12px; display: grid; grid-template-columns: 160px 1fr; gap: 5px 12px; }
+        .tl-row { display: contents; }
+        .tl-key { font-size: 12px; color: var(--n600); font-weight: 500; padding: 1px 0; }
+        .tl-val { font-size: 12px; color: var(--n900); font-family: 'Courier New', monospace; padding: 1px 0; }
+        .tl-action { margin-top: 8px; }
+        .btn-ev-detail { display: inline-flex; padding: 4px 10px; border: 1px solid var(--primary); color: var(--primary); border-radius: 4px; font-size: 11px; cursor: pointer; background: none; font-family: inherit; transition: all 0.15s; text-decoration: none; }
+        .btn-ev-detail:hover { background: var(--primary); color: white; }
+        .pending-note { display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: #fff7e6; border: 1px solid #ffe58f; border-radius: 6px; font-size: 13px; color: #7B5800; margin-top: 8px; }
+        .sign-actions-bar { margin-top: 16px; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+        .sign-checkbox { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; padding: 10px 14px; background: var(--n50); border-radius: 6px; border: 1px solid var(--n200); margin-bottom: 12px; }
+        .sign-checkbox input { margin-top: 2px; cursor: pointer; flex-shrink: 0; }
+        .sign-checkbox span { font-size: 13px; color: var(--n800); line-height: 1.5; }
+        .sign-btns { display: flex; gap: 10px; max-width: 480px; }
+        .btn-sign { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #FF6633; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: not-allowed; font-family: inherit; transition: all 0.15s; opacity: 0.4; }
+        .btn-sign.enabled { cursor: pointer; opacity: 1; }
+        .btn-sign.enabled:hover { background: var(--primary-dark); }
+        .btn-reject { flex: 1; padding: 12px; background: white; color: var(--danger); border: 1px solid var(--danger); border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+        .btn-reject:hover { background: #fff1f0; }
+
+        /* ===== MODAL KÝ CKS ===== */
+        .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-backdrop.open { display: flex; }
+        .modal { background: var(--white); border-radius: 12px; width: 480px; max-width: calc(100vw - 32px); box-shadow: 0 8px 32px rgba(0,0,0,0.18); overflow: hidden; }
+        .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; justify-content: space-between; }
+        .modal-title { font-size: 15px; font-weight: 700; color: var(--n900); display: flex; align-items: center; gap: 8px; }
+        .modal-close { background: none; border: none; font-size: 18px; color: var(--n400); cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+        .modal-close:hover { background: var(--n100); color: var(--n800); }
+        .modal-body { padding: 20px 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--n200); display: flex; gap: 10px; }
+
+        /* Credential type badge */
+        .cred-type { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-bottom: 16px; }
+        .cred-type.usb { background: #e6f7ff; color: #0958d9; border: 1px solid #91caff; }
+        .cred-type.remote { background: #f9f0ff; color: #722ED1; border: 1px solid #d3adf7; }
+
+        /* Nội dung sẽ ký */
+        .sign-info { background: var(--n50); border: 1px solid var(--n200); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; }
+        .sign-info-title { font-size: 11px; font-weight: 600; color: var(--n400); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .sign-info-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; font-size: 13px; }
+        .sign-info-row:last-child { margin-bottom: 0; }
+        .sign-info-key { color: var(--n600); flex-shrink: 0; }
+        .sign-info-val { color: var(--n900); font-weight: 500; text-align: right; }
+        .sign-info-val.action { color: #237804; font-weight: 700; }
+
+        /* Steps */
+        .sign-step { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; border: 1px solid transparent; transition: all 0.2s; }
+        .sign-step.active { background: #e6f7ff; border-color: #91caff; }
+        .sign-step.done { background: #f6ffed; border-color: #b7eb8f; }
+        .sign-step.error { background: #fff1f0; border-color: #ffccc7; }
+        .sign-step.waiting { background: var(--n50); border-color: var(--n200); opacity: 0.6; }
+        .step-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+        .sign-step.active .step-icon { background: #1890FF; color: white; }
+        .sign-step.done .step-icon { background: #52C41A; color: white; }
+        .sign-step.error .step-icon { background: #FF4D4F; color: white; }
+        .sign-step.waiting .step-icon { background: var(--n200); color: var(--n400); }
+        .step-text { flex: 1; }
+        .step-label { font-size: 13px; font-weight: 600; color: var(--n900); margin-bottom: 2px; }
+        .sign-step.waiting .step-label { color: var(--n400); }
+        .step-sub { font-size: 12px; color: var(--n600); }
+        .sign-step.error .step-sub { color: #CF1322; }
+
+        /* Spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+
+        /* Remote signing - waiting device */
+        .remote-wait { text-align: center; padding: 16px 0 8px; }
+        .remote-wait-icon { font-size: 40px; margin-bottom: 10px; }
+        .remote-wait-title { font-size: 14px; font-weight: 600; color: var(--n900); margin-bottom: 6px; }
+        .remote-wait-sub { font-size: 13px; color: var(--n600); line-height: 1.5; }
+        .pulse { animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .btn-modal-primary { flex: 1; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+        .btn-modal-primary:hover { background: var(--primary-dark); }
+        .btn-modal-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-modal-cancel { padding: 10px 20px; background: white; color: var(--n600); border: 1px solid var(--n200); border-radius: 6px; font-size: 14px; cursor: pointer; font-family: inherit; }
+        .btn-modal-cancel:hover { background: var(--n50); }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-name"><span class="logo-bkav">Bkav</span> | <span class="logo-emas">eMAS</span></div>
+            <div class="logo-sub">Dịch vụ Chứng thực Thông điệp Dữ liệu</div>
+        </div>
+        <nav>
+            <div class="nav-item"><a href="R-MH-01-dashboard.html" class="nav-link">🏠 Dashboard</a></div>
+            <div class="nav-item"><a href="R-MH-02-inbox.html" class="nav-link active">📥 Hộp thư đến <span class="nav-badge">2</span></a></div>
+            <div class="nav-item"><a href="#" class="nav-link">📤 Đã gửi</a></div>
+            <div class="nav-item"><a href="R-MH-06-trustlist.html" class="nav-link">🛡️ ERDS tin cậy</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">⚙️ Cài đặt</a></div>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-user">
+                <div class="user-avatar">A</div>
+                <div>
+                    <div class="user-name">Nguyễn Văn A</div>
+                    <div class="user-id">034567890123@eMAS.vn</div>
+                </div>
+                <a href="R-MH-00-login.html" class="btn-logout">Đăng xuất</a>
+            </div>
+        </div>
+        <div class="main-body">
+            <div class="breadcrumb">
+                <a href="R-MH-01-dashboard.html">Dashboard</a><span>›</span>
+                <a href="R-MH-02-inbox.html">Hộp thư đến</a><span>›</span>
+                <span>Chi tiết thông điệp</span>
+            </div>
+            <div style="margin-bottom:16px;">
+                <div class="page-title">Thông báo lịch họp tháng 6/2026</div>
+                <div id="status-badge" class="badge-status" style="background:#f6ffed;color:#237804;">✅ Đã nhận</div>
+            </div>
+
+            <!-- Meta compact -->
+            <div class="meta-bar">
+                <div class="meta-line">
+                    <span>Từ: <strong>Nga xinh đẹp</strong> <code>012345678901@eMAS.vn</code></span>
+                    <span class="meta-arrow">→</span>
+                    <span><strong>Nguyễn Văn A</strong> <code>034567890123@eMAS.vn</code></span>
+                </div>
+                <div class="meta-line-sub">
+                    <span>📅 29/05/2026 09:16</span>
+                    <span class="meta-sep">·</span>
+                    <span style="color:#CF1322;">Hạn: 08/06/2026</span>
+                    <span class="meta-sep">·</span>
+                    <span><code>20260529.00123@emas.vn</code></span>
+                    <span class="meta-sep">·</span>
+                    <span class="mode-badge" style="background:#f6ffed;color:#237804;">✅ Basic</span>
+                </div>
+            </div>
+
+            <!-- 2-col layout -->
+            <div class="detail-layout">
+                <!-- Tài liệu -->
+                <div class="panel">
+                    <div class="panel-header">📄 Tài liệu</div>
+                    <div class="panel-body">
+                        <div class="hash-check">✅ Toàn vẹn dữ liệu đã xác minh — SHA-256 khớp</div>
+                        <div style="position:relative;">
+                            <div id="doc-content" class="doc-viewer">
+                                <div class="doc-title">THÔNG BÁO LỊCH HỌP<br><small style="font-weight:400;font-size:12px">Số: TB-06/2026</small></div>
+                                <div class="doc-section"><div class="doc-section-title">Kính gửi:</div><p>Toàn thể cán bộ, nhân viên Công ty Cổ phần Bkav</p></div>
+                                <div class="doc-section"><div class="doc-section-title">Nội dung:</div><p>Ban Giám đốc tổ chức họp toàn công ty tháng 6/2026.</p></div>
+                                <div class="doc-section"><div class="doc-section-title">Thời gian:</div><p>08:30 — Thứ Hai, 02/06/2026</p></div>
+                                <div class="doc-section"><div class="doc-section-title">Địa điểm:</div><p>Hội trường tầng 10 · Tòa nhà Bkav, Hà Nội</p></div>
+                                <div class="doc-section"><div class="doc-section-title">Yêu cầu:</div><p>Toàn bộ nhân viên tham dự đúng giờ. Vắng mặt cần báo cáo trưởng phòng trước 01/06/2026.</p></div>
+                                <p style="text-align:center;color:var(--n400);margin-top:20px;font-size:12px;">— Hết nội dung —</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Minh chứng -->
+                <div class="panel">
+                    <div class="panel-header">🔐 Minh chứng (Evidence)</div>
+                    <div class="panel-body">
+                        <div class="timeline">
+                            <div class="tl-item ev-a1">
+                                <div class="tl-dot"></div>
+                                <div class="tl-header"><div class="tl-title">Minh chứng chấp nhận gửi (A.1)</div><span class="ev-badge a1">SubmissionAcceptance</span></div>
+                                <div class="tl-time">📅 29/05/2026 09:15:30 GMT+7</div>
+                                <div class="tl-body">
+                                    <div class="tl-row"><span class="tl-key">Evidence ID</span><span class="tl-val">EV-20260529-A1-NODE01-998877</span></div>
+                                    <div class="tl-row"><span class="tl-key">Chữ ký số</span><span class="tl-val">✅ HSM eMAS System</span></div>
+                                    <div class="tl-row"><span class="tl-key">Dấu thời gian (TSA)</span><span class="tl-val">VNPT CA · 09:15:31</span></div>
+                                    <div class="tl-row"><span class="tl-key">Lưu trữ dài hạn (LTP)</span><span class="tl-val">✅ Đã lưu</span></div>
+                                </div>
+                                <div class="tl-action"><a href="R-MH-05-evidence-detail.html?ev=A1&id=EV-20260529-A1-NODE01-998877" class="btn-ev-detail">Xem chi tiết minh chứng</a></div>
+                            </div>
+                            <div class="tl-item ev-d1">
+                                <div class="tl-dot"></div>
+                                <div class="tl-header"><div class="tl-title">Minh chứng ký gửi nội dung (D.1)</div><span class="ev-badge d1">ContentConsignment</span></div>
+                                <div class="tl-time">📅 29/05/2026 09:16:45 GMT+7</div>
+                                <div class="tl-body">
+                                    <div class="tl-row"><span class="tl-key">Evidence ID</span><span class="tl-val">EV-20260529-D1-NODE01-998878</span></div>
+                                    <div class="tl-row"><span class="tl-key">Chữ ký số</span><span class="tl-val">✅ HSM eMAS System</span></div>
+                                    <div class="tl-row"><span class="tl-key">Dấu thời gian (TSA)</span><span class="tl-val">VNPT CA · 09:16:46</span></div>
+                                    <div class="tl-row"><span class="tl-key">Lưu trữ dài hạn (LTP)</span><span class="tl-val">✅ Đã lưu</span></div>
+                                </div>
+                                <div class="tl-action"><a href="R-MH-05-evidence-detail.html?ev=D1&id=EV-20260529-D1-NODE01-998878" class="btn-ev-detail">Xem chi tiết minh chứng</a></div>
+                            </div>
+                            <!-- C.3: không có trong Basic mode -->
+                            <div class="tl-item ev-e1" id="ev-e1-done">
+                                <div class="tl-dot"></div>
+                                <div class="tl-header"><div class="tl-title">Minh chứng bàn giao nội dung (E.1)</div><span class="ev-badge e1">ContentHandover</span></div>
+                                <div class="tl-time">📅 29/05/2026 09:17:02 GMT+7</div>
+                                <div class="tl-body">
+                                    <div class="tl-row"><span class="tl-key">Evidence ID</span><span class="tl-val">EV-20260529-E1-NODE01-998879</span></div>
+                                    <div class="tl-row"><span class="tl-key">Hình thức</span><span class="tl-val">Basic — ERDS push tự động</span></div>
+                                    <div class="tl-row"><span class="tl-key">Kiểm tra toàn vẹn</span><span class="tl-val">✅ SHA-256 matched</span></div>
+                                    <div class="tl-row"><span class="tl-key">Dấu thời gian (TSA)</span><span class="tl-val">VNPT CA · 09:17:03</span></div>
+                                    <div class="tl-row"><span class="tl-key">Lưu trữ dài hạn (LTP)</span><span class="tl-val">✅ Đã lưu</span></div>
+                                </div>
+                                <div class="tl-action"><a href="R-MH-05-evidence-detail.html?ev=E1&id=EV-20260529-E1-NODE01-998879" class="btn-ev-detail">Xem chi tiết minh chứng</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- end detail-layout -->
+
+        </div><!-- end main-body -->
+    </main>
+</div>
+
+<!-- ===== MODAL KÝ CKS ===== -->
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">🔏 Ký xác nhận nhận tài liệu</div>
+            <button class="modal-close" onclick="closeSignModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Nội dung render theo credentialType -->
+        </div>
+        <div class="modal-footer" id="modalFooter">
+            <!-- Footer render theo trạng thái -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Basic mode — không cần script ký
+</script>
+</body>
+</html>

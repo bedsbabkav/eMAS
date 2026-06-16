@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERDS tin cậy - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6633; --primary-dark: #E65A2E; --primary-light: rgba(255,102,51,0.08);
+            --teal: #4DD4D5; --success: #52C41A; --danger: #FF4D4F;
+            --n900: #1A1A1A; --n800: #333; --n600: #666; --n400: #999;
+            --n200: #E0E0E0; --n100: #F0F0F0; --n50: #F7F7F7; --white: #FFF;
+            --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--n800); background: var(--n50); }
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: var(--white); border-right: 1px solid var(--n200); padding: 16px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .logo { margin-bottom: 32px; padding: 8px; }
+        .logo-name { font-size: 16px; font-weight: 600; }
+        .logo-bkav { color: var(--primary); font-weight: 700; }
+        .logo-emas { color: var(--teal); font-weight: 600; }
+        .logo-sub { font-size: 11px; color: var(--n400); margin-top: 2px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: var(--n600); text-decoration: none; border-radius: 6px; transition: all 0.15s; font-size: 13px; }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+        .main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+        .topbar { background: var(--white); border-bottom: 1px solid var(--n200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; }
+        .topbar-user { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 600; flex-shrink: 0; }
+        .user-name { font-size: 13px; font-weight: 500; color: var(--n900); }
+        .user-id { font-size: 11px; color: var(--n400); }
+        .btn-logout { font-size: 12px; color: var(--n400); text-decoration: none; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--n200); }
+        .btn-logout:hover { color: var(--danger); background: #fff1f0; border-color: var(--danger); }
+        .main-body { flex: 1; padding: 24px; overflow: auto; }
+        .page-header { margin-bottom: 20px; }
+        .page-title { font-size: 20px; font-weight: 700; color: var(--n900); }
+        .page-sub { font-size: 13px; color: var(--n600); margin-top: 4px; }
+
+        .info-banner {
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0e6ff 100%);
+            border: 1px solid #b7d4ff; border-radius: var(--radius);
+            padding: 16px 20px; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 12px;
+            font-size: 13px; color: #1d3557;
+        }
+        .info-banner-icon { font-size: 24px; flex-shrink: 0; }
+
+        .search-bar {
+            display: flex; gap: 12px; margin-bottom: 16px;
+        }
+        .search-input {
+            flex: 1; padding: 9px 14px; border: 1px solid var(--n200);
+            border-radius: 6px; font-size: 13px; font-family: inherit;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .filter-select {
+            padding: 9px 14px; border: 1px solid var(--n200);
+            border-radius: 6px; font-size: 13px; font-family: inherit; color: var(--n800);
+        }
+
+        .table-wrap { background: var(--white); border: 1px solid var(--n200); border-radius: var(--radius); overflow: hidden; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); background: var(--n50); border-bottom: 1px solid var(--n200); white-space: nowrap; }
+        .table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid var(--n100); vertical-align: middle; }
+        .table tr:last-child td { border-bottom: none; }
+        .table tr:hover td { background: #fffbf8; }
+
+        .erds-name { font-weight: 600; color: var(--n900); }
+        .erds-id { font-size: 11px; color: var(--n400); font-family: 'Courier New', monospace; margin-top: 2px; }
+        .erds-endpoint { font-size: 11px; font-family: 'Courier New', monospace; color: var(--n600); }
+
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+        .badge-active { background: #f6ffed; color: #237804; }
+        .badge-suspended { background: #fff7e6; color: #d46b08; }
+        .badge-inactive { background: var(--n100); color: var(--n600); }
+
+        .cert-info { font-size: 11px; color: var(--n600); }
+        .cert-valid { color: #237804; }
+
+        .pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--n200); font-size: 13px; color: var(--n600); }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-name"><span class="logo-bkav">Bkav</span> | <span class="logo-emas">eMAS</span></div>
+            <div class="logo-sub">Dịch vụ Chứng thực Thông điệp Dữ liệu</div>
+        </div>
+        <nav>
+            <div class="nav-item"><a href="R-MH-01-dashboard.html" class="nav-link">🏠 Dashboard</a></div>
+            <div class="nav-item"><a href="R-MH-02-inbox.html" class="nav-link">📥 Hộp thư đến</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">📤 Đã gửi</a></div>
+            <div class="nav-item"><a href="R-MH-06-trustlist.html" class="nav-link active">🛡️ ERDS tin cậy</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">⚙️ Cài đặt</a></div>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-user">
+                <div class="user-avatar">A</div>
+                <div>
+                    <div class="user-name">Nguyễn Văn A</div>
+                    <div class="user-id">034567890123@eMAS.vn</div>
+                </div>
+                <a href="R-MH-00-login.html" class="btn-logout">Đăng xuất</a>
+            </div>
+        </div>
+        <div class="main-body">
+            <div class="page-header">
+                <div class="page-title">🛡️ ERDS tin cậy</div>
+                <div class="page-sub">Danh sách nhà cung cấp dịch vụ ERDS được cấp phép hoạt động</div>
+            </div>
+
+            <div class="info-banner">
+                <span class="info-banner-icon">ℹ️</span>
+                <span>Danh sách ERDS tin cậy được cập nhật theo quy định của cơ quan quản lý nhà nước. Kết nối inter-ERDS qua giao thức AS4 với xác thực mTLS hai chiều.</span>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="🔍 Tìm tên ERDS, ERDS ID, endpoint...">
+                <select class="filter-select">
+                    <option value="">Trạng thái: Tất cả</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="suspended">Tạm ngừng</option>
+                </select>
+            </div>
+
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nhà cung cấp ERDS</th>
+                            <th>AS4 Endpoint</th>
+                            <th>Chứng thư số</th>
+                            <th>Trạng thái</th>
+                            <th>Cập nhật</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="erds-name">Bkav eMAS</div>
+                                <div class="erds-id">ERDS-VN-001</div>
+                            </td>
+                            <td><span class="erds-endpoint">https://as4.emas.bkav.com/msh</span></td>
+                            <td>
+                                <div class="cert-info">CN=eMAS Bkav, O=Bkav, C=VN</div>
+                                <div class="cert-info cert-valid">✅ Hợp lệ đến 01/2028</div>
+                            </td>
+                            <td><span class="badge badge-active">✅ Đang hoạt động</span></td>
+                            <td>29/05/2026</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="erds-name">VNPT eMAS</div>
+                                <div class="erds-id">ERDS-VN-002</div>
+                            </td>
+                            <td><span class="erds-endpoint">https://as4.emas.vnpt.vn/msh</span></td>
+                            <td>
+                                <div class="cert-info">CN=eMAS VNPT, O=VNPT, C=VN</div>
+                                <div class="cert-info cert-valid">✅ Hợp lệ đến 06/2027</div>
+                            </td>
+                            <td><span class="badge badge-active">✅ Đang hoạt động</span></td>
+                            <td>28/05/2026</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="erds-name">Viettel eMAS</div>
+                                <div class="erds-id">ERDS-VN-003</div>
+                            </td>
+                            <td><span class="erds-endpoint">https://as4.emas.viettel.vn/msh</span></td>
+                            <td>
+                                <div class="cert-info">CN=eMAS Viettel, O=Viettel, C=VN</div>
+                                <div class="cert-info cert-valid">✅ Hợp lệ đến 03/2027</div>
+                            </td>
+                            <td><span class="badge badge-active">✅ Đang hoạt động</span></td>
+                            <td>27/05/2026</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="erds-name">FPT eMAS</div>
+                                <div class="erds-id">ERDS-VN-004</div>
+                            </td>
+                            <td><span class="erds-endpoint">https://as4.emas.fpt.vn/msh</span></td>
+                            <td>
+                                <div class="cert-info">CN=eMAS FPT, O=FPT, C=VN</div>
+                                <div class="cert-info" style="color:#d46b08;">⚠️ Hết hạn 12/2025</div>
+                            </td>
+                            <td><span class="badge badge-suspended">⚠️ Tạm ngừng</span></td>
+                            <td>15/01/2026</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="erds-name">CMC eMAS</div>
+                                <div class="erds-id">ERDS-VN-005</div>
+                            </td>
+                            <td><span class="erds-endpoint">https://as4.emas.cmc.com.vn/msh</span></td>
+                            <td>
+                                <div class="cert-info">CN=eMAS CMC, O=CMC, C=VN</div>
+                                <div class="cert-info cert-valid">✅ Hợp lệ đến 09/2027</div>
+                            </td>
+                            <td><span class="badge badge-active">✅ Đang hoạt động</span></td>
+                            <td>25/05/2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <span>Hiển thị 1–5 / 5 nhà cung cấp ERDS</span>
+                </div>
+            </div>
+        </div><!-- end main-body -->
+    </main>
+</div>
+</body>
+</html>

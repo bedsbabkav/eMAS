@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F7F7F7 0%, #E8E8E8 100%);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .login-container {
+            background: white; border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+            width: 100%; max-width: 480px; padding: 48px;
+        }
+        .logo-section { text-align: center; margin-bottom: 40px; }
+        .logo-circle {
+            width: 80px; height: 80px; background: #FF6633; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+        }
+        .logo-circle-text { font-size: 48px; font-weight: 700; color: white; }
+        .logo-text { font-size: 28px; font-weight: 600; margin-bottom: 6px; }
+        .logo-bkav { color: #FF6633; font-weight: 700; }
+        .logo-emas { color: #4DD4D5; font-weight: 600; }
+        .logo-sub { font-size: 13px; color: #999; }
+        .login-title { font-size: 20px; font-weight: 600; color: #1A1A1A; text-align: center; margin-bottom: 32px; }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; color: #333; margin-bottom: 8px; }
+        .form-label .required { color: #FF4D4F; }
+        .form-input {
+            width: 100%; padding: 12px 16px; border: 1px solid #CCC; border-radius: 6px;
+            font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.2s;
+        }
+        .form-input:focus { outline: none; border-color: #FF6633; box-shadow: 0 0 0 3px rgba(255,102,51,0.1); }
+        .form-input::placeholder { color: #999; }
+        .password-wrapper { position: relative; }
+        .password-toggle {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; font-size: 18px; color: #666;
+        }
+        .form-footer { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .checkbox-wrapper { display: flex; align-items: center; gap: 8px; }
+        .checkbox-label { font-size: 14px; color: #666; cursor: pointer; }
+        .forgot-link { font-size: 14px; color: #FF6633; text-decoration: none; }
+        .forgot-link:hover { text-decoration: underline; }
+        .btn-login {
+            width: 100%; padding: 14px; background: #FF6633; color: white;
+            border: none; border-radius: 6px; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-login:hover { background: #E65A2E; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <div class="logo-circle"><div class="logo-circle-text">B</div></div>
+            <div class="logo-text"><span class="logo-bkav">Bkav</span> | <span class="logo-emas">eMAS</span></div>
+            <div class="logo-sub">Dịch vụ Chứng thực Thông điệp Dữ liệu</div>
+        </div>
+
+        <h1 class="login-title">Đăng nhập</h1>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label">Tên đăng nhập <span class="required">*</span></label>
+                <input type="text" class="form-input" placeholder="CCCD hoặc MST@eMAS.vn" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mật khẩu <span class="required">*</span></label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" class="form-input" placeholder="Nhập mật khẩu" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+                </div>
+            </div>
+            <div class="form-footer">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="remember">
+                    <label for="remember" class="checkbox-label">Ghi nhớ đăng nhập</label>
+                </div>
+                <a href="#" class="forgot-link">Quên mật khẩu?</a>
+            </div>
+            <button type="submit" class="btn-login">Đăng nhập</button>
+        </form>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const p = document.getElementById('password');
+            p.type = p.type === 'password' ? 'text' : 'password';
+        }
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // IAM xác thực username/password thành công → chuyển sang bước Xác minh 2 bước
+            // Giữ nguyên query params (msgid, action) để truyền tiếp cho luồng deeplink Signed Consent
+            window.location.href = 'R-MH-00_3-otp.html' + window.location.search;
+        });
+    </script>
+</body>
+</html>

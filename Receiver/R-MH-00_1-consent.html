@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận nhận tài liệu - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6633; --primary-dark: #E65A2E;
+            --teal: #4DD4D5; --danger: #FF4D4F;
+            --purple: #722ED1; --purple-light: #f0e6ff;
+            --n900: #1A1A1A; --n600: #666; --n400: #999;
+            --n200: #E0E0E0; --n50: #F7F7F7; --white: #FFF;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif; font-size: 14px;
+            background: linear-gradient(135deg, #F7F7F7 0%, #E8E8E8 100%);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 24px;
+        }
+        .topbar {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: var(--white); border-bottom: 1px solid var(--n200);
+            padding: 12px 32px; display: flex; align-items: center; gap: 10px; z-index: 10;
+        }
+        .logo-bkav { color: var(--primary); font-weight: 700; font-size: 15px; }
+        .logo-emas { color: var(--teal); font-weight: 600; font-size: 15px; }
+        .topbar-sep { color: var(--n200); }
+        .topbar-sub { font-size: 13px; color: var(--n600); }
+
+        .card {
+            background: var(--white); border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+            width: 100%; max-width: 480px;
+            margin-top: 56px; overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #FF8C5A 0%, #FFAA80 40%, #4DD4D5 100%);
+            padding: 28px 32px; text-align: center; position: relative; overflow: hidden;
+        }
+        .card-header::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.07'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        .card-header > * { position: relative; z-index: 1; }
+        .card-header-icon { font-size: 40px; margin-bottom: 8px; }
+        .card-header-title { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+        .card-header-sub { font-size: 13px; color: rgba(255,255,255,0.85); }
+
+        .card-body { padding: 28px 32px 32px; }
+
+        .sender-block {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; background: var(--n50);
+            border-radius: 8px; border: 1px solid var(--n200); margin-bottom: 20px;
+        }
+        .sender-avatar {
+            width: 44px; height: 44px; background: var(--primary);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 20px; flex-shrink: 0;
+        }
+        .sender-name { font-size: 15px; font-weight: 600; color: var(--n900); }
+        .sender-label { font-size: 12px; color: var(--n400); margin-top: 2px; }
+
+        .info-list { display: flex; flex-direction: column; margin-bottom: 24px; }
+        .info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--n200);
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { font-size: 13px; color: var(--n600); }
+        .info-value { font-size: 13px; font-weight: 600; color: var(--n900); text-align: right; }
+        .info-value.mono { font-family: 'Courier New', monospace; font-size: 12px; }
+        .badge-mode {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: var(--purple-light); color: var(--purple);
+            padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600;
+        }
+
+        .login-hint {
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 16px; background: var(--purple-light);
+            border-radius: 8px; margin-bottom: 16px;
+            font-size: 14px; font-weight: 600; color: var(--purple);
+        }
+
+        .btn-accept {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 14px; border-radius: 8px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            background: var(--primary); color: white; border: none;
+            font-family: inherit; transition: background 0.15s;
+            text-decoration: none; margin-bottom: 10px;
+        }
+        .btn-accept:hover { background: var(--primary-dark); }
+
+        .btn-reject {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            width: 100%; padding: 12px; border-radius: 8px;
+            font-size: 13.5px; font-weight: 600; cursor: pointer;
+            background: var(--white); color: var(--danger);
+            border: 1.5px solid var(--danger); font-family: inherit;
+            transition: background 0.15s; text-decoration: none;
+        }
+        .btn-reject:hover { background: #fff1f0; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <span class="logo-bkav">Bkav</span>
+    <span class="logo-emas">eMAS</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-sub">Dịch vụ Chứng thực Thông điệp Dữ liệu</span>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-header-icon">📨</div>
+        <div class="card-header-title">Bạn có 1 tài liệu cần xác nhận</div>
+        <div class="card-header-sub">Yêu cầu xác nhận nhận tài liệu điện tử qua dịch vụ eMAS</div>
+    </div>
+
+    <div class="card-body">
+        <div class="sender-block">
+            <div class="sender-avatar">🏢</div>
+            <div>
+                <div class="sender-name">Nga xinh đẹp</div>
+                <div class="sender-label">Người gửi · 012345678901@eMAS.vn</div>
+            </div>
+        </div>
+
+        <div class="info-list">
+            <div class="info-row">
+                <span class="info-label">Tiêu đề</span>
+                <span class="info-value">Hợp đồng lao động 2026</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Người nhận</span>
+                <span class="info-value">034567890123@eMAS.vn</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Mã thông điệp</span>
+                <span class="info-value mono">20260529.00123@emas.vn</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Hạn xác nhận</span>
+                <span class="info-value" style="color:#CF1322;">08/06/2026 23:59</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Hình thức</span>
+                <span class="info-value"><span class="badge-mode">🔏 Signed Consent</span></span>
+            </div>
+        </div>
+
+        <div class="login-hint">
+            🔐&nbsp; Đăng nhập để đồng ý hoặc từ chối nhận tài liệu
+        </div>
+
+        <a href="R-MH-00_2-login.html?msgid=20260529.00123@emas.vn" class="btn-accept">
+            Đăng nhập
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

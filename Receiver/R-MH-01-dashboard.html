@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6633; --primary-dark: #E65A2E; --primary-light: rgba(255,102,51,0.08);
+            --teal: #4DD4D5; --success: #52C41A; --warning: #FAAD14; --danger: #FF4D4F;
+            --n900: #1A1A1A; --n800: #333; --n600: #666; --n400: #999;
+            --n200: #E0E0E0; --n100: #F0F0F0; --n50: #F7F7F7; --white: #FFF;
+            --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.1); --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--n800); background: var(--n50); }
+        .app { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: 240px; background: var(--white); border-right: 1px solid var(--n200); padding: 16px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .logo { margin-bottom: 32px; padding: 8px; }
+        .logo-name { font-size: 16px; font-weight: 600; }
+        .logo-bkav { color: var(--primary); font-weight: 700; }
+        .logo-emas { color: var(--teal); font-weight: 600; }
+        .logo-sub { font-size: 11px; color: var(--n400); margin-top: 2px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: var(--n600); text-decoration: none; border-radius: 6px; transition: all 0.15s; font-size: 13px; }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+        .nav-badge { margin-left: auto; background: var(--primary); color: white; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 99px; }
+
+        /* Main */
+        .main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+        .topbar { background: var(--white); border-bottom: 1px solid var(--n200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; }
+        .topbar-user { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 600; flex-shrink: 0; }
+        .user-name { font-size: 13px; font-weight: 500; color: var(--n900); }
+        .user-id { font-size: 11px; color: var(--n400); }
+        .btn-logout { font-size: 12px; color: var(--n400); text-decoration: none; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--n200); }
+        .btn-logout:hover { color: var(--danger); background: #fff1f0; border-color: var(--danger); }
+        .main-body { flex: 1; padding: 20px; overflow: auto; }
+
+        /* Welcome */
+        .welcome-bar {
+            background: linear-gradient(135deg, #FF8C5A 0%, #FFB08A 60%, #FFD0B5 100%);
+            border-radius: var(--radius); padding: 24px 28px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; color: #7A2E0E;
+        }
+        .welcome-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .welcome-sub { font-size: 13px; opacity: 0.85; }
+        .welcome-date-val { font-size: 22px; font-weight: 700; text-align: right; }
+        .welcome-date-label { font-size: 12px; opacity: 0.8; margin-top: 2px; text-align: right; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+        .stat-card { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); cursor: pointer; transition: all 0.15s; }
+        .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .stat-icon.teal { background: linear-gradient(135deg, #4DD4D5, #2A9A9B); }
+        .stat-icon.orange { background: linear-gradient(135deg, #FAAD14, #D46B08); }
+        .stat-icon.green { background: linear-gradient(135deg, #52C41A, #389e0d); }
+        .stat-icon.red { background: linear-gradient(135deg, #FF4D4F, #CF1322); }
+        .stat-trend { font-size: 12px; font-weight: 500; padding: 2px 6px; border-radius: 4px; }
+        .stat-trend.up { background: #f6ffed; color: #237804; }
+        .stat-label { font-size: 13px; color: var(--n600); margin-bottom: 4px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--n900); margin-bottom: 4px; }
+        .stat-desc { font-size: 12px; color: var(--n400); }
+
+        /* Content grid */
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .card { background: var(--white); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+        .card-title { font-size: 15px; font-weight: 600; color: var(--n900); margin-bottom: 12px; }
+
+        /* Inbox preview table */
+        .inbox-table { width: 100%; border-collapse: collapse; }
+        .inbox-table th { font-size: 12px; font-weight: 600; color: var(--n600); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--n200); background: var(--n50); }
+        .inbox-table td { padding: 12px; border-bottom: 1px solid var(--n100); font-size: 13px; vertical-align: middle; }
+        .inbox-table tr:last-child td { border-bottom: none; }
+        .inbox-table tr.unread td { background: #fffbf8; }
+        .inbox-table tr.unread td:first-child { border-left: 3px solid var(--primary); }
+        .doc-name { font-weight: 600; color: var(--n900); }
+        .doc-name a { text-decoration: none; color: inherit; }
+        .doc-name a:hover { color: var(--primary); }
+        .doc-id { font-size: 11px; color: var(--n400); font-family: 'Courier New', monospace; }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+        .badge-pending { background: #fff7e6; color: #d46b08; }
+        .badge-signed { background: #f6ffed; color: #237804; }
+        .view-all { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: var(--primary); text-decoration: none; }
+        .view-all:hover { text-decoration: underline; }
+
+        /* Chart */
+        .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .chart-wrap { display: flex; align-items: flex-end; gap: 8px; height: 160px; padding-top: 24px; border-bottom: 1px solid var(--n200); margin-bottom: 4px; }
+        .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .bar-val { font-size: 11px; font-weight: 600; color: var(--n800); }
+        .bar { width: 100%; max-width: 48px; background: linear-gradient(180deg, var(--primary), #FF8A5C); border-radius: 4px 4px 0 0; }
+        .bar-label { font-size: 11px; color: var(--n400); text-align: center; }
+
+        /* Quick actions */
+        .action-btn { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--n50); border: 1px solid var(--n200); border-radius: 6px; text-decoration: none; color: inherit; margin-bottom: 10px; transition: all 0.15s; cursor: pointer; }
+        .action-btn:hover { border-color: var(--primary); background: var(--white); }
+        .action-btn:last-child { margin-bottom: 0; }
+        .action-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,102,51,0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .action-title { font-size: 13px; font-weight: 600; color: var(--n900); }
+        .action-desc { font-size: 11px; color: var(--n400); margin-top: 1px; }
+        .action-arrow { margin-left: auto; color: var(--n200); font-size: 16px; }
+
+        /* Activity */
+        .activity-list { display: flex; flex-direction: column; gap: 8px; }
+        .activity-item { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; background: var(--n50); border-radius: 6px; }
+        .activity-dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+        .dot-success { background: #f6ffed; }
+        .dot-info { background: #e6f7ff; }
+        .dot-warn { background: #fff7e6; }
+        .activity-title { font-size: 13px; font-weight: 500; color: var(--n900); margin-bottom: 2px; }
+        .activity-desc { font-size: 12px; color: var(--n600); margin-bottom: 2px; }
+        .activity-time { font-size: 11px; color: var(--n400); }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-name"><span class="logo-bkav">Bkav</span> | <span class="logo-emas">eMAS</span></div>
+            <div class="logo-sub">Dịch vụ Chứng thực Thông điệp Dữ liệu</div>
+        </div>
+        <nav>
+            <div class="nav-item"><a href="R-MH-01-dashboard.html" class="nav-link active">🏠 Dashboard</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">✏️ Tạo thông điệp mới</a></div>
+            <div class="nav-item"><a href="R-MH-02-inbox.html" class="nav-link">📥 Hộp thư đến <span class="nav-badge">2</span></a></div>
+            <div class="nav-item"><a href="#" class="nav-link">📤 Đã gửi</a></div>
+            <div class="nav-item"><a href="R-MH-06-trustlist.html" class="nav-link">🛡️ ERDS tin cậy</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">⚙️ Cài đặt</a></div>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-user">
+                <div class="user-avatar">A</div>
+                <div>
+                    <div class="user-name">Nguyễn Văn A</div>
+                    <div class="user-id">034567890123@eMAS.vn</div>
+                </div>
+                <a href="R-MH-00-login.html" class="btn-logout">Đăng xuất</a>
+            </div>
+        </div>
+        <div class="main-body">
+
+            <div class="welcome-bar">
+                <div>
+                    <div class="welcome-title">Xin chào, Nguyễn Văn A 👋</div>
+                    <div class="welcome-sub">Bạn có 7 thông điệp chưa xử lý</div>
+                </div>
+                <div>
+                    <div class="welcome-date-val">29/05/2026</div>
+                    <div class="welcome-date-label">Hôm nay</div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon teal">📤</div>
+                    </div>
+                    <div class="stat-label">Thông điệp đã gửi</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-desc">Chưa gửi thông điệp nào</div>
+                </div>
+                <div class="stat-card" onclick="window.location.href='R-MH-02-inbox.html'">
+                    <div class="stat-header">
+                        <div class="stat-icon green">📥</div>
+                        <span class="stat-trend up">↑ 2 mới</span>
+                    </div>
+                    <div class="stat-label">Thông điệp đã nhận</div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-desc">Tổng từ trước đến nay</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon orange">⏳</div>
+                    </div>
+                    <div class="stat-label">Chờ xử lý</div>
+                    <div class="stat-value">2</div>
+                    <div class="stat-desc">Cần xác nhận sớm</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon red">⚠️</div>
+                    </div>
+                    <div class="stat-label">Sắp hết hạn</div>
+                    <div class="stat-value">1</div>
+                    <div class="stat-desc">Hạn xác nhận 30/05/2026</div>
+                </div>
+            </div>
+
+            <!-- Content grid -->
+            <div class="content-grid">
+                <!-- Inbox preview -->
+                <div class="card">
+                    <div class="card-title">📥 Thông điệp chờ xử lý</div>
+                    <table class="inbox-table">
+                        <thead>
+                            <tr>
+                                <th>Thông điệp</th>
+                                <th>Người gửi</th>
+                                <th>Hạn xác nhận</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="unread">
+                                <td>
+                                    <div class="doc-name"><a href="R-MH-03-detail.html">Phụ lục hợp đồng</a></div>
+                                    <div class="doc-id">20260520.00098@emas.vn</div>
+                                </td>
+                                <td>Nga xinh đẹp</td>
+                                <td style="color:#CF1322;font-weight:500;">30/05/2026</td>
+                                <td><span class="badge badge-pending">⏳ Chờ ký</span></td>
+                            </tr>
+                            <tr class="unread">
+                                <td>
+                                    <div class="doc-name"><a href="R-MH-03-detail.html">Hợp đồng lao động 2026</a></div>
+                                    <div class="doc-id">20260529.00123@emas.vn</div>
+                                </td>
+                                <td>Nga xinh đẹp</td>
+                                <td style="color:#CF1322;font-weight:500;">08/06/2026</td>
+                                <td><span class="badge badge-pending">⏳ Chờ ký</span></td>
+                            </tr>
+                            <tr class="unread">
+                                <td>
+                                    <div class="doc-name"><a href="R-MH-03-detail.html">Thông báo điều chỉnh lương</a></div>
+                                    <div class="doc-id">20260527.00115@emas.vn</div>
+                                </td>
+                                <td>Phòng Nhân sự</td>
+                                <td style="color:#CF1322;font-weight:500;">10/06/2026</td>
+                                <td><span class="badge badge-pending">⏳ Chờ ký</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="doc-name"><a href="R-MH-03-detail.html">Quy chế làm việc từ xa 2026</a></div>
+                                    <div class="doc-id">20260525.00109@emas.vn</div>
+                                </td>
+                                <td>Ban Giám đốc</td>
+                                <td>15/06/2026</td>
+                                <td><span class="badge badge-pending">⏳ Chờ ký</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="doc-name"><a href="R-MH-03-detail.html">Nội quy lao động v3</a></div>
+                                    <div class="doc-id">20260522.00103@emas.vn</div>
+                                </td>
+                                <td>Phòng Nhân sự</td>
+                                <td>20/06/2026</td>
+                                <td><span class="badge badge-pending">⏳ Chờ ký</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="R-MH-02-inbox.html" class="view-all">Xem tất cả (7) →</a>
+                </div>
+
+                <!-- Quick actions -->
+                <div class="card">
+                    <div class="card-title">Thao tác nhanh</div>
+                    <a href="#" class="action-btn">
+                        <div class="action-icon">✏️</div>
+                        <div><div class="action-title">Tạo thông điệp mới</div><div class="action-desc">Gửi tài liệu qua ERDS</div></div>
+                        <div class="action-arrow">›</div>
+                    </a>
+                    <a href="R-MH-02-inbox.html" class="action-btn">
+                        <div class="action-icon">📥</div>
+                        <div><div class="action-title">Hộp thư đến</div><div class="action-desc">Xem thông điệp chờ xử lý</div></div>
+                        <div class="action-arrow">›</div>
+                    </a>
+                    <a href="#" class="action-btn">
+                        <div class="action-icon">📤</div>
+                        <div><div class="action-title">Xem thông điệp đã gửi</div><div class="action-desc">Tra cứu trạng thái & evidence</div></div>
+                        <div class="action-arrow">›</div>
+                    </a>
+                    <a href="R-MH-06-trustlist.html" class="action-btn">
+                        <div class="action-icon">🛡️</div>
+                        <div><div class="action-title">ERDS tin cậy</div><div class="action-desc">Xem danh sách ERDS đối tác</div></div>
+                        <div class="action-arrow">›</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bottom grid: chart + activity side by side -->
+            <div class="bottom-grid">
+            <!-- Chart -->
+            <div class="card">
+                <div class="card-title">📊 Thông điệp nhận theo tháng (6 tháng gần nhất)</div>
+                <div class="chart-wrap" id="chart">
+                    <div class="bar-col"><div class="bar-val">1</div><div class="bar" style="height:0" data-h="43px"></div><div class="bar-label">T12/2025</div></div>
+                    <div class="bar-col"><div class="bar-val">2</div><div class="bar" style="height:0" data-h="87px"></div><div class="bar-label">T1/2026</div></div>
+                    <div class="bar-col"><div class="bar-val">2</div><div class="bar" style="height:0" data-h="87px"></div><div class="bar-label">T2/2026</div></div>
+                    <div class="bar-col"><div class="bar-val">2</div><div class="bar" style="height:0" data-h="87px"></div><div class="bar-label">T3/2026</div></div>
+                    <div class="bar-col"><div class="bar-val">2</div><div class="bar" style="height:0" data-h="87px"></div><div class="bar-label">T4/2026</div></div>
+                    <div class="bar-col"><div class="bar-val">3</div><div class="bar" style="height:0" data-h="130px"></div><div class="bar-label">T5/2026</div></div>
+                </div>
+            </div>
+
+            <!-- Activity -->
+            <div class="card">
+                <div class="card-title">📋 Hoạt động gần đây</div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-dot dot-info">📨</div>
+                        <div>
+                            <div class="activity-title">Nhận thông điệp mới — Hợp đồng lao động 2026</div>
+                            <div class="activity-desc">Từ: Nga xinh đẹp (012345678901@eMAS.vn)</div>
+                            <div class="activity-time">30 phút trước · MsgID: 20260529.00123@emas.vn</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-dot dot-warn">⏳</div>
+                        <div>
+                            <div class="activity-title">Nhắc nhở: Phụ lục hợp đồng sắp hết hạn</div>
+                            <div class="activity-desc">Hạn xác nhận: 30/05/2026 — còn 1 ngày</div>
+                            <div class="activity-time">1 giờ trước · MsgID: 20260520.00098@emas.vn</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-dot dot-success">✅</div>
+                        <div>
+                            <div class="activity-title">Đã xác nhận — Quyết định bổ nhiệm Trưởng nhóm</div>
+                            <div class="activity-desc">Minh chứng bàn giao nội dung (E.1) (ContentHandover) đã tạo và lưu LTP</div>
+                            <div class="activity-time">15/04/2026 · MsgID: 20260415.00067@emas.vn</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div><!-- end bottom-grid -->
+
+        </div><!-- end main-body -->
+    </main>
+</div>
+
+<script>
+    window.addEventListener('load', () => {
+        const bars = document.querySelectorAll('.bar');
+        setTimeout(() => bars.forEach((bar, i) => setTimeout(() => { bar.style.transition = 'height 0.6s ease'; bar.style.height = bar.getAttribute('data-h'); }, i * 80)), 300);
+    });
+</script>
+</body>
+</html>

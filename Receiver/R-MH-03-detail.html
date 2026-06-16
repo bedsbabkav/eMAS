@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết thông điệp - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6633; --primary-dark: #E65A2E; --primary-light: rgba(255,102,51,0.08);
+            --teal: #4DD4D5; --success: #52C41A; --warning: #FAAD14; --info: #1890FF; --danger: #FF4D4F;
+            --n900: #1A1A1A; --n800: #333; --n600: #666; --n400: #999;
+            --n200: #E0E0E0; --n100: #F0F0F0; --n50: #F7F7F7; --white: #FFF;
+            --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--n800); background: var(--n50); }
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: var(--white); border-right: 1px solid var(--n200); padding: 16px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .logo { margin-bottom: 32px; padding: 8px; }
+        .logo-name { font-size: 16px; font-weight: 600; }
+        .logo-bkav { color: var(--primary); font-weight: 700; }
+        .logo-emas { color: var(--teal); font-weight: 600; }
+        .logo-sub { font-size: 11px; color: var(--n400); margin-top: 2px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: var(--n600); text-decoration: none; border-radius: 6px; transition: all 0.15s; font-size: 13px; }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+        .nav-badge { margin-left: auto; background: var(--primary); color: white; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 99px; }
+        .main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+        .topbar { background: var(--white); border-bottom: 1px solid var(--n200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; }
+        .topbar-user { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 600; flex-shrink: 0; }
+        .user-name { font-size: 13px; font-weight: 500; color: var(--n900); }
+        .user-id { font-size: 11px; color: var(--n400); }
+        .btn-logout { font-size: 12px; color: var(--n400); text-decoration: none; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--n200); }
+        .btn-logout:hover { color: var(--danger); background: #fff1f0; border-color: var(--danger); }
+        .main-body { flex: 1; padding: 24px; overflow: auto; }
+        .breadcrumb { display: flex; gap: 6px; font-size: 12px; color: var(--n600); margin-bottom: 6px; }
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+        .page-title { font-size: 20px; font-weight: 700; color: var(--n900); }
+        .badge-status { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; margin-top: 6px; }
+        .badge-pending { background: #fff7e6; color: #d46b08; }
+        .meta-bar { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 20px; margin-bottom: 16px; }
+        .meta-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--n900); margin-bottom: 6px; }
+        .meta-line code { font-family: 'Courier New', monospace; font-size: 11px; color: var(--n600); }
+        .meta-arrow { color: var(--primary); font-weight: 600; }
+        .meta-line-sub { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--n600); }
+        .meta-line-sub code { font-family: 'Courier New', monospace; font-size: 11px; }
+        .meta-sep { color: var(--n200); }
+        .mode-badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; background: #f0e6ff; color: #722ED1; }
+        .detail-layout { display: flex; flex-direction: column; gap: 16px; }
+        .bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+        .panel { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .panel-header { padding: 14px 20px; border-bottom: 1px solid var(--n200); font-size: 14px; font-weight: 600; color: var(--n900); }
+        .panel-body { padding: 20px; }
+        .doc-viewer { font-size: 13px; line-height: 1.8; color: var(--n800); }
+        .doc-title { font-size: 15px; font-weight: 700; text-align: center; margin-bottom: 16px; color: var(--n900); }
+        .doc-section { margin-bottom: 14px; }
+        .doc-section-title { font-weight: 600; margin-bottom: 4px; }
+        .hash-check { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; font-size: 12px; color: #237804; font-weight: 500; margin-bottom: 16px; }
+        .timeline { position: relative; padding-left: 28px; }
+        .timeline::before { content: ''; position: absolute; left: 7px; top: 20px; bottom: 20px; width: 2px; background: var(--n200); }
+        .tl-item { position: relative; margin-bottom: 20px; }
+        .tl-dot { position: absolute; left: -21px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--white); border: 3px solid var(--n200); z-index: 1; }
+        .tl-item.ev-a1 .tl-dot { border-color: var(--info); }
+        .tl-item.ev-d1 .tl-dot { border-color: var(--warning); }
+        .tl-item.ev-e1 .tl-dot { border-color: var(--success); }
+        .tl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .tl-title { font-size: 13px; font-weight: 600; color: var(--n900); }
+        .ev-badge { display: inline-flex; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+        .ev-badge.a1 { background: #e6f7ff; color: #0958d9; }
+        .ev-badge.d1 { background: #fff7e6; color: #d46b08; }
+        .ev-badge.e1 { background: #f6ffed; color: #237804; }
+        .tl-time { font-size: 11px; color: var(--n600); margin-bottom: 8px; }
+        .tl-body { background: var(--n50); border-radius: 6px; padding: 10px 12px; display: grid; grid-template-columns: 160px 1fr; gap: 5px 12px; }
+        .tl-row { display: contents; }
+        .tl-key { font-size: 12px; color: var(--n600); font-weight: 500; padding: 1px 0; }
+        .tl-val { font-size: 12px; color: var(--n900); font-family: 'Courier New', monospace; padding: 1px 0; }
+        .tl-action { margin-top: 8px; }
+        .btn-ev-detail { display: inline-flex; padding: 4px 10px; border: 1px solid var(--primary); color: var(--primary); border-radius: 4px; font-size: 11px; cursor: pointer; background: none; font-family: inherit; transition: all 0.15s; text-decoration: none; }
+        .btn-ev-detail:hover { background: var(--primary); color: white; }
+        .pending-note { display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: #fff7e6; border: 1px solid #ffe58f; border-radius: 6px; font-size: 13px; color: #7B5800; margin-top: 8px; }
+        .sign-actions-bar { margin-top: 16px; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+        .sign-checkbox { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; padding: 10px 14px; background: var(--n50); border-radius: 6px; border: 1px solid var(--n200); margin-bottom: 12px; }
+        .sign-checkbox input { margin-top: 2px; cursor: pointer; flex-shrink: 0; }
+        .sign-checkbox span { font-size: 13px; color: var(--n800); line-height: 1.5; }
+        .sign-btns { display: flex; gap: 10px; max-width: 480px; }
+        .btn-sign { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #FF6633; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: not-allowed; font-family: inherit; transition: all 0.15s; opacity: 0.4; }
+        .btn-sign.enabled { cursor: pointer; opacity: 1; }
+        .btn-sign.enabled:hover { background: var(--primary-dark); }
+        .btn-reject { flex: 1; padding: 12px; background: white; color: var(--danger); border: 1px solid var(--danger); border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+        .btn-reject:hover { background: #fff1f0; }
+
+        /* ===== MODAL KÝ CKS ===== */
+        .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-backdrop.open { display: flex; }
+        .modal { background: var(--white); border-radius: 12px; width: 480px; max-width: calc(100vw - 32px); box-shadow: 0 8px 32px rgba(0,0,0,0.18); overflow: hidden; }
+        .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; justify-content: space-between; }
+        .modal-title { font-size: 15px; font-weight: 700; color: var(--n900); display: flex; align-items: center; gap: 8px; }
+        .modal-close { background: none; border: none; font-size: 18px; color: var(--n400); cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+        .modal-close:hover { background: var(--n100); color: var(--n800); }
+        .modal-body { padding: 20px 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--n200); display: flex; gap: 10px; }
+
+        /* Credential type badge */
+        .cred-type { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-bottom: 16px; }
+        .cred-type.usb { background: #e6f7ff; color: #0958d9; border: 1px solid #91caff; }
+        .cred-type.remote { background: #f9f0ff; color: #722ED1; border: 1px solid #d3adf7; }
+
+        /* Nội dung sẽ ký */
+        .sign-info { background: var(--n50); border: 1px solid var(--n200); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; }
+        .sign-info-title { font-size: 11px; font-weight: 600; color: var(--n400); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .sign-info-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; font-size: 13px; }
+        .sign-info-row:last-child { margin-bottom: 0; }
+        .sign-info-key { color: var(--n600); flex-shrink: 0; }
+        .sign-info-val { color: var(--n900); font-weight: 500; text-align: right; }
+        .sign-info-val.action { color: #237804; font-weight: 700; }
+
+        /* Steps */
+        .sign-step { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; border: 1px solid transparent; transition: all 0.2s; }
+        .sign-step.active { background: #e6f7ff; border-color: #91caff; }
+        .sign-step.done { background: #f6ffed; border-color: #b7eb8f; }
+        .sign-step.error { background: #fff1f0; border-color: #ffccc7; }
+        .sign-step.waiting { background: var(--n50); border-color: var(--n200); opacity: 0.6; }
+        .step-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+        .sign-step.active .step-icon { background: #1890FF; color: white; }
+        .sign-step.done .step-icon { background: #52C41A; color: white; }
+        .sign-step.error .step-icon { background: #FF4D4F; color: white; }
+        .sign-step.waiting .step-icon { background: var(--n200); color: var(--n400); }
+        .step-text { flex: 1; }
+        .step-label { font-size: 13px; font-weight: 600; color: var(--n900); margin-bottom: 2px; }
+        .sign-step.waiting .step-label { color: var(--n400); }
+        .step-sub { font-size: 12px; color: var(--n600); }
+        .sign-step.error .step-sub { color: #CF1322; }
+
+        /* Spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+
+        /* Remote signing - waiting device */
+        .remote-wait { text-align: center; padding: 16px 0 8px; }
+        .remote-wait-icon { font-size: 40px; margin-bottom: 10px; }
+        .remote-wait-title { font-size: 14px; font-weight: 600; color: var(--n900); margin-bottom: 6px; }
+        .remote-wait-sub { font-size: 13px; color: var(--n600); line-height: 1.5; }
+        .pulse { animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .btn-modal-primary { flex: 1; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+        .btn-modal-primary:hover { background: var(--primary-dark); }
+        .btn-modal-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-modal-cancel { padding: 10px 20px; background: white; color: var(--n600); border: 1px solid var(--n200); border-radius: 6px; font-size: 14px; cursor: pointer; font-family: inherit; }
+        .btn-modal-cancel:hover { background: var(--n50); }
+
+        /* File chip switcher — align với Sender UI */
+        .file-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .file-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--n200); border-radius: 6px; cursor: pointer; font-size: 13px; background: var(--white); transition: all 0.15s; }
+        .file-chip:hover { border-color: var(--primary); color: var(--primary); }
+        .file-chip.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 500; }
+        .file-chip-icon { font-size: 16px; }
+        .file-chip-size { font-size: 11px; color: var(--n400); }
+        .file-chip.active .file-chip-size { color: var(--primary); opacity: 0.7; }
+        .file-chip-hash { font-size: 11px; color: #237804; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-name"><span class="logo-bkav">Bkav</span> | <span class="logo-emas">eMAS</span></div>
+            <div class="logo-sub">Dịch vụ Chứng thực Thông điệp Dữ liệu</div>
+        </div>
+        <nav>
+            <div class="nav-item"><a href="R-MH-01-dashboard.html" class="nav-link">🏠 Dashboard</a></div>
+            <div class="nav-item"><a href="R-MH-02-inbox.html" class="nav-link active">📥 Hộp thư đến <span class="nav-badge">2</span></a></div>
+            <div class="nav-item"><a href="#" class="nav-link">📤 Đã gửi</a></div>
+            <div class="nav-item"><a href="R-MH-06-trustlist.html" class="nav-link">🛡️ ERDS tin cậy</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">⚙️ Cài đặt</a></div>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-user">
+                <div class="user-avatar">A</div>
+                <div>
+                    <div class="user-name">Nguyễn Văn A</div>
+                    <div class="user-id">034567890123@eMAS.vn</div>
+                </div>
+                <a href="R-MH-00-login.html" class="btn-logout">Đăng xuất</a>
+            </div>
+        </div>
+        <div class="main-body">
+            <div class="breadcrumb">
+                <a href="R-MH-01-dashboard.html">Dashboard</a><span>›</span>
+                <a href="R-MH-02-inbox.html">Hộp thư đến</a><span>›</span>
+                <span>Chi tiết thông điệp</span>
+            </div>
+            <div style="margin-bottom:16px;">
+                <div class="page-title">Hợp đồng lao động 2026 <span style="font-size:13px;font-weight:500;color:var(--n600);margin-left:6px;">· 3 tài liệu đính kèm</span></div>
+                <div id="status-badge" class="badge-status badge-pending">⏳ Chờ ký xác nhận</div>
+            </div>
+
+            <!-- Meta compact -->
+            <div class="meta-bar">
+                <div class="meta-line">
+                    <span>Từ: <strong>Nga xinh đẹp</strong> <code>012345678901@eMAS.vn</code></span>
+                    <span class="meta-arrow">→</span>
+                    <span><strong>Nguyễn Văn A</strong> <code>034567890123@eMAS.vn</code></span>
+                </div>
+                <div class="meta-line-sub">
+                    <span>📅 29/05/2026 09:16</span>
+                    <span class="meta-sep">·</span>
+                    <span style="color:#CF1322;">Hạn: 08/06/2026</span>
+                    <span class="meta-sep">·</span>
+                    <span><code>20260529.00123@emas.vn</code></span>
+                    <span class="meta-sep">·</span>
+                    <span class="mode-badge">🔏 Signed Consent</span>
+                </div>
+            </div>
+
+            <!-- detail layout: file list trên, viewer + evidence dưới -->
+            <div class="detail-layout">
+
+                <!-- Row 1: File list panel — full width -->
+                <div class="panel">
+                    <div class="panel-header" style="display:flex;align-items:center;gap:12px;">
+                        <span>📁 Tài liệu</span>
+                        <span style="font-size:12px;font-weight:500;color:#237804;">✅ Đã xác minh toàn vẹn dữ liệu — 3/3 file (SHA-256)</span>
+                    </div>
+                    <div class="panel-body" style="padding:14px 20px;">
+                        <div class="file-list">
+                            <div class="file-chip active" onclick="switchFile(0)" id="file-0">
+                                <span class="file-chip-icon">📄</span>
+                                <span>Hopdong_NVC_2026.pdf</span>
+                                <span class="file-chip-size">2.1 MB</span>
+                            </div>
+                            <div class="file-chip" onclick="switchFile(1)" id="file-1">
+                                <span class="file-chip-icon">📋</span>
+                                <span>PhuLuc_Luong_2026.pdf</span>
+                                <span class="file-chip-size">0.8 MB</span>
+                            </div>
+                            <div class="file-chip" onclick="switchFile(2)" id="file-2">
+                                <span class="file-chip-icon">📝</span>
+                                <span>NoiQuyLaoDong_v3.pdf</span>
+                                <span class="file-chip-size">1.4 MB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Viewer trái + Evidence phải -->
+                <div class="bottom-row">
+
+                    <!-- Viewer panel -->
+                    <div class="panel">
+                        <div class="panel-header" id="viewerTitle">📄 Hopdong_NVC_2026.pdf</div>
+                        <div class="panel-body">
+                            <div style="position:relative;">
+                                <div id="doc-content" class="doc-viewer" style="filter:blur(4px);user-select:none;pointer-events:none;opacity:0.6;">
+                                    <div class="doc-title" id="doc-title">HỢP ĐỒNG LAO ĐỘNG<br><small style="font-weight:400;font-size:12px">Số: 061/HĐLĐ/2026 · Hopdong_NVC_2026.pdf</small></div>
+                                    <div class="doc-section"><div class="doc-section-title">Điều 1. Thông tin các bên</div><p><strong>Bên A:</strong> Công ty Cổ phần Bkav</p><p><strong>Bên B:</strong> Nguyễn Văn A — CCCD: 034567890123</p></div>
+                                    <div class="doc-section"><div class="doc-section-title">Điều 2. Công việc</div><p>Chức danh: Kỹ sư phần mềm · Phòng Kỹ thuật</p></div>
+                                    <div class="doc-section"><div class="doc-section-title">Điều 3. Thời hạn</div><p>Không xác định thời hạn · Bắt đầu: 01/06/2026</p></div>
+                                    <div class="doc-section"><div class="doc-section-title">Điều 4. Lương</div><p>Mức lương cơ bản: 25.000.000 VNĐ/tháng</p></div>
+                                    <p style="text-align:center;color:var(--n400);margin-top:20px;font-size:12px;">— Hết nội dung —</p>
+                                </div>
+                                <div id="sign-overlay" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,0.55);border-radius:8px;pointer-events:none;">
+                                    <div style="font-size:36px;">🔏</div>
+                                    <div style="font-size:14px;font-weight:600;color:var(--n900);">Ký xác nhận để xem nội dung</div>
+                                    <div style="font-size:12px;color:var(--n600);">Tài liệu yêu cầu Signed Consent trước khi hiển thị</div>
+                                </div>
+                            </div>
+                            <!-- Checkbox + buttons -->
+                            <div id="sign-actions" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--n200);">
+                                <label class="sign-checkbox">
+                                    <input type="checkbox" id="chkConfirm" onchange="toggleSignBtn()">
+                                    <span>Tôi đồng ý nhận tài liệu này. Việc ký số có giá trị pháp lý tương đương ký tay theo Nghị định 23/2025/NĐ-CP.</span>
+                                </label>
+                                <div class="sign-btns">
+                                    <button id="btnSign" class="btn-sign" disabled onclick="openSignModal()">🔏 Ký xác nhận</button>
+                                    <button class="btn-reject" onclick="window.location.href='R-MH-03-detail.html?msgid=20260529.00123@emas.vn&action=reject'">❌ Từ chối</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Minh chứng panel -->
+                    <div class="panel">
+                        <div class="panel-header">🔐 Minh chứng (Evidence)</div>
+                        <div class="panel-body">
+                            <div class="timeline">
+                                <div class="tl-item ev-a1">
+                                    <div class="tl-dot"></div>
+                                    <div class="tl-header"><div class="tl-title">Minh chứng chấp nhận gửi (A.1)</div><span class="ev-badge a1">SubmissionAcceptance</span></div>
+                                    <div class="tl-time">📅 29/05/2026 09:15:30 GMT+7</div>
+                                    <div class="tl-body">
+                                        <div class="tl-row"><span class="tl-key">Evidence ID</span><span class="tl-val">EV-20260529-A1-NODE01-998877</span></div>
+                                        <div class="tl-row"><span class="tl-key">Chữ ký số</span><span class="tl-val">✅ HSM eMAS System</span></div>
+                                        <div class="tl-row"><span class="tl-key">Dấu thời gian (TSA)</span><span class="tl-val">VNPT CA · 09:15:31</span></div>
+                                        <div class="tl-row"><span class="tl-key">Lưu trữ dài hạn (LTP)</span><span class="tl-val">✅ Đã lưu</span></div>
+                                    </div>
+                                    <div class="tl-action"><a href="R-MH-05-evidence-detail.html?ev=A1&id=EV-20260529-A1-NODE01-998877" class="btn-ev-detail">Xem chi tiết minh chứng</a></div>
+                                </div>
+                                <div class="tl-item ev-d1">
+                                    <div class="tl-dot"></div>
+                                    <div class="tl-header"><div class="tl-title">Minh chứng ký gửi nội dung (D.1)</div><span class="ev-badge d1">ContentConsignment</span></div>
+                                    <div class="tl-time">📅 29/05/2026 09:16:45 GMT+7</div>
+                                    <div class="tl-body">
+                                        <div class="tl-row"><span class="tl-key">Evidence ID</span><span class="tl-val">EV-20260529-D1-NODE01-998878</span></div>
+                                        <div class="tl-row"><span class="tl-key">Chữ ký số</span><span class="tl-val">✅ HSM eMAS System</span></div>
+                                        <div class="tl-row"><span class="tl-key">Dấu thời gian (TSA)</span><span class="tl-val">VNPT CA · 09:16:46</span></div>
+                                        <div class="tl-row"><span class="tl-key">Lưu trữ dài hạn (LTP)</span><span class="tl-val">✅ Đã lưu</span></div>
+                                    </div>
+                                    <div class="tl-action"><a href="R-MH-05-evidence-detail.html?ev=D1&id=EV-20260529-D1-NODE01-998878" class="btn-ev-detail">Xem chi tiết minh chứng</a></div>
+                                </div>
+                                <!-- C.3: chỉ hiện khi đã ký -->
+                                <div class="tl-item" id="ev-c3-done" style="display:none;">
+                                    <div class="tl-dot" style="border-color:#722ED1;"></div>
+                                    <div class="tl-header"><div class="tl-title">Minh chứng chấp nhận nhận (C.3)</div><span class="ev-badge" style="background:#f0e6ff;color:#722ED1;">ConsignmentAcceptance</span></div>
+                                    <div class="tl-time">📅 29/05/2026 10:29:58 GMT+7</div>
+                                    <div class="tl-body">
+                                        <div class="tl-row"><span class="tl-key">Evidence ID</span><span class="tl-val">EV-20260529-C3-NODE01-998879</span></div>
+                                        <div class="tl-row"><span class="tl-key">Xác nhận người nhận</span><span class="tl-val">✅ Signed Consent (CKS)</span></div>
+                                        <div class="tl-row"><span class="tl-key">Chữ ký số Recipient</span><span class="tl-val">✅ serialNumber khớp CCCD</span></div>
+                                        <div class="tl-row"><span class="tl-key">Dấu thời gian (TSA)</span><span class="tl-val">VNPT CA · 10:29:59</span></div>
+                                        <div class="tl-row"><span class="tl-key">Lưu trữ dài hạn (LTP)</span><span class="tl-val">✅ Đã lưu</span></div>
+                                    </div>
+                                    <div class="tl-action"><a href="R-MH-05-evidence-detail.html?ev=C3&id=EV-20260529-C3-NODE01-998879" class="btn-ev-detail">Xem chi tiết minh chứng</a></div>
+                                </div>
+                                <div class="tl-item" id="ev-e1-pending">
+                                    <div class="tl-dot"></div>
+                                    <div class="tl-header"><div class="tl-title" style="color:var(--n400)">Minh chứng bàn giao nội dung (E.1)</div><span class="ev-badge" style="background:var(--n100);color:var(--n600)">ContentHandover</span></div>
+                                    <div class="pending-note">⏳ Chờ người nhận ký xác nhận để tạo minh chứng bàn giao nội dung (E.1)</div>
+                                </div>
+                                <div class="tl-item ev-e1" id="ev-e1-done" style="display:none;">
+                                    <div class="tl-dot"></div>
+                                    <div class="tl-header"><div class="tl-title">Minh chứng bàn giao nội dung (E.1)</div><span class="ev-badge e1">ContentHandover</span></div>
+                                    <div class="tl-time">📅 29/05/2026 10:30:12 GMT+7</div>
+                                    <div class="tl-body">
+                                        <div class="tl-row"><span class="tl-key">Evidence ID</span><span class="tl-val">EV-20260529-E1-NODE01-998879</span></div>
+                                        <div class="tl-row"><span class="tl-key">Xác nhận người nhận</span><span class="tl-val">✅ Signed Consent (CKS)</span></div>
+                                        <div class="tl-row"><span class="tl-key">Kiểm tra toàn vẹn</span><span class="tl-val">✅ SHA-256 khớp</span></div>
+                                        <div class="tl-row"><span class="tl-key">Dấu thời gian (TSA)</span><span class="tl-val">VNPT CA · 10:30:13</span></div>
+                                        <div class="tl-row"><span class="tl-key">Lưu trữ dài hạn (LTP)</span><span class="tl-val">✅ Đã lưu</span></div>
+                                    </div>
+                                    <div class="tl-action"><a href="R-MH-05-evidence-detail.html?ev=E1&id=EV-20260529-E1-NODE01-998879" class="btn-ev-detail">Xem chi tiết minh chứng</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /bottom-row -->
+            </div><!-- /detail-layout -->
+
+        </div><!-- end main-body -->
+    </main>
+</div>
+
+<!-- ===== MODAL KÝ CKS ===== -->
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">🔏 Ký xác nhận nhận tài liệu</div>
+            <button class="modal-close" onclick="closeSignModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Nội dung render theo credentialType -->
+        </div>
+        <div class="modal-footer" id="modalFooter">
+            <!-- Footer render theo trạng thái -->
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== Giả định credentialType từ session (đăng nhập bằng loại nào) =====
+// Thực tế lấy từ JWT claim. Demo: đổi giá trị để test 2 flow
+var CREDENTIAL_TYPE = 'usb'; // 'usb' hoặc 'remote'
+
+// ===== File switcher =====
+var FILES = [
+    { name: 'Hopdong_NVC_2026.pdf', title: 'HỢP ĐỒNG LAO ĐỘNG', sub: 'Số: 061/HĐLĐ/2026 · Hopdong_NVC_2026.pdf' },
+    { name: 'PhuLuc_Luong_2026.pdf', title: 'PHỤ LỤC LƯƠNG', sub: 'PL-061/2026 · PhuLuc_Luong_2026.pdf' },
+    { name: 'NoiQuyLaoDong_v3.pdf', title: 'NỘI QUY LAO ĐỘNG', sub: 'Ban hành 01/01/2026 · NoiQuyLaoDong_v3.pdf' }
+];
+var currentFile = 0;
+
+function switchFile(idx) {
+    currentFile = idx;
+    FILES.forEach(function(_, i) {
+        document.getElementById('file-' + i).classList.toggle('active', i === idx);
+    });
+    var f = FILES[idx];
+    document.getElementById('doc-title').innerHTML = f.title + '<br><small style="font-weight:400;font-size:12px">' + f.sub + '</small>';
+    document.getElementById('viewerTitle').textContent = '📄 ' + f.name;
+}
+
+// State machine: idle → confirming → signing → verifying → done | error
+var signState = 'idle';
+
+function openSignModal() {
+    signState = 'confirming';
+    renderModal();
+    document.getElementById('modalBackdrop').classList.add('open');
+}
+
+function closeSignModal() {
+    if (signState === 'signing' || signState === 'verifying') return; // không đóng khi đang xử lý
+    document.getElementById('modalBackdrop').classList.remove('open');
+    signState = 'idle';
+}
+
+function renderModal() {
+    if (CREDENTIAL_TYPE === 'usb') renderUSB();
+    else renderRemote();
+}
+
+// ===== USB TOKEN FLOW =====
+function renderUSB() {
+    var body = document.getElementById('modalBody');
+    var footer = document.getElementById('modalFooter');
+
+    if (signState === 'confirming') {
+        body.innerHTML =
+            '<div style="display:flex;align-items:center;gap:10px;padding:14px;background:var(--n50);border:1px solid var(--n200);border-radius:8px;margin-bottom:16px;font-size:13px;color:var(--n800);">' +
+                '<span style="font-size:24px;">🔌</span>' +
+                '<span>Cắm USB Token vào máy tính trước khi tiếp tục.</span>' +
+            '</div>' +
+            '<div style="margin-bottom:6px;font-size:13px;font-weight:500;color:var(--n800);">Mã PIN</div>' +
+            '<input id="pinInput" type="password" maxlength="20" placeholder="Nhập mã PIN của USB Token" ' +
+                'style="width:100%;padding:10px 12px;border:1px solid var(--n200);border-radius:6px;font-size:14px;font-family:inherit;outline:none;" ' +
+                'oninput="onPinInput()" onkeydown="if(event.key===\'Enter\')submitPin()" ' +
+                'onfocus="this.style.borderColor=\'#FF6633\'" onblur="this.style.borderColor=\'var(--n200)\'">' +
+            '<div id="pinError" style="display:none;margin-top:6px;font-size:12px;color:#CF1322;"></div>';
+        footer.innerHTML =
+            '<button class="btn-modal-cancel" onclick="closeSignModal()">Huỷ</button>' +
+            '<button id="btnSubmitPin" class="btn-modal-primary" onclick="submitPin()" disabled>Ký xác nhận</button>';
+        // Focus PIN input
+        setTimeout(function(){ var el = document.getElementById('pinInput'); if(el) el.focus(); }, 50);
+
+    } else if (signState === 'signing') {
+        body.innerHTML =
+            '<div style="text-align:center;padding:20px 0;">' +
+                '<div style="font-size:36px;margin-bottom:12px;" class="pulse">✍️</div>' +
+                '<div style="font-size:14px;font-weight:600;color:var(--n900);margin-bottom:6px;">Đang ký...</div>' +
+                '<div style="font-size:13px;color:var(--n600);">Vui lòng không rút USB Token.</div>' +
+            '</div>';
+        footer.innerHTML = '<button class="btn-modal-primary" disabled>Đang xử lý...</button>';
+
+    } else if (signState === 'done') {
+        body.innerHTML =
+            '<div style="text-align:center;padding:20px 0;">' +
+                '<div style="font-size:36px;margin-bottom:12px;">✅</div>' +
+                '<div style="font-size:14px;font-weight:600;color:#237804;margin-bottom:6px;">Ký xác nhận thành công</div>' +
+                '<div style="font-size:13px;color:var(--n600);">Minh chứng C.3 và E.1 đã được tạo.</div>' +
+            '</div>';
+        footer.innerHTML = '<button class="btn-modal-primary" onclick="onSignSuccess()" style="background:#52C41A;">Xem tài liệu</button>';
+
+    } else if (signState === 'error_pin') {
+        body.innerHTML =
+            '<div style="display:flex;align-items:center;gap:10px;padding:14px;background:var(--n50);border:1px solid var(--n200);border-radius:8px;margin-bottom:16px;font-size:13px;color:var(--n800);">' +
+                '<span style="font-size:24px;">🔌</span>' +
+                '<span>Cắm USB Token vào máy tính trước khi tiếp tục.</span>' +
+            '</div>' +
+            '<div style="margin-bottom:6px;font-size:13px;font-weight:500;color:var(--n800);">Mã PIN</div>' +
+            '<input id="pinInput" type="password" maxlength="20" placeholder="Nhập mã PIN của USB Token" ' +
+                'style="width:100%;padding:10px 12px;border:1px solid #FF4D4F;border-radius:6px;font-size:14px;font-family:inherit;outline:none;" ' +
+                'oninput="onPinInput()" onkeydown="if(event.key===\'Enter\')submitPin()">' +
+            '<div style="margin-top:6px;font-size:12px;color:#CF1322;">❌ PIN không đúng. Vui lòng thử lại.</div>';
+        footer.innerHTML =
+            '<button class="btn-modal-cancel" onclick="closeSignModal()">Huỷ</button>' +
+            '<button id="btnSubmitPin" class="btn-modal-primary" onclick="submitPin()" disabled>Ký xác nhận</button>';
+        setTimeout(function(){ var el = document.getElementById('pinInput'); if(el) el.focus(); }, 50);
+    }
+}
+
+function onPinInput() {
+    var val = document.getElementById('pinInput').value;
+    var btn = document.getElementById('btnSubmitPin');
+    if (btn) btn.disabled = val.length < 4;
+}
+
+function submitPin() {
+    var pin = document.getElementById('pinInput') ? document.getElementById('pinInput').value : '';
+    if (pin.length < 4) return;
+    signState = 'signing';
+    renderUSB();
+    // Simulate ký: 1.5s
+    setTimeout(function() {
+        // Demo: PIN "0000" = lỗi, còn lại = thành công
+        if (pin === '0000') {
+            signState = 'error_pin';
+        } else {
+            signState = 'done';
+        }
+        renderUSB();
+    }, 1500);
+}
+
+// ===== REMOTE SIGNING FLOW =====
+function renderRemote() {
+    var body = document.getElementById('modalBody');
+    var footer = document.getElementById('modalFooter');
+
+    if (signState === 'confirming') {
+        body.innerHTML =
+            '<div class="sign-info">' +
+                '<div class="sign-info-title">Nội dung ký xác nhận</div>' +
+                '<div class="sign-info-row"><span class="sign-info-key">Mã thông điệp</span><span class="sign-info-val"><code>20260529.00123@emas.vn</code></span></div>' +
+                '<div class="sign-info-row"><span class="sign-info-key">Hành động</span><span class="sign-info-val action">✅ Đồng ý nhận tài liệu</span></div>' +
+                '<div class="sign-info-row"><span class="sign-info-key">Người nhận</span><span class="sign-info-val">Nguyễn Văn A · 034567890123</span></div>' +
+                '<div class="sign-info-row"><span class="sign-info-key">Thời điểm</span><span class="sign-info-val">29/05/2026 10:29:58 GMT+7</span></div>' +
+            '</div>' +
+            '<div style="font-size:13px;color:var(--n600);padding:10px 0;">Yêu cầu ký sẽ được gửi đến ứng dụng <strong>Bkav eSign</strong> trên điện thoại của bạn. Mở app và xác nhận để tiếp tục.</div>';
+        footer.innerHTML =
+            '<button class="btn-modal-cancel" onclick="closeSignModal()">Huỷ</button>' +
+            '<button class="btn-modal-primary" onclick="startRemoteSign()">Gửi yêu cầu đến app</button>';
+    } else if (signState === 'signing') {
+        body.innerHTML =
+            '<div class="remote-wait">' +
+                '<div class="remote-wait-icon pulse">📱</div>' +
+                '<div class="remote-wait-title">Chờ xác nhận trên Bkav eSign</div>' +
+                '<div class="remote-wait-sub">Yêu cầu ký đã được gửi đến điện thoại của bạn.<br>Mở app Bkav eSign và nhấn <strong>Xác nhận ký</strong>.</div>' +
+                '<div style="margin-top:14px;font-size:12px;color:var(--n400);">Tự động hết hạn sau <span id="countdown">60</span>s</div>' +
+            '</div>';
+        footer.innerHTML =
+            '<button class="btn-modal-cancel" onclick="cancelRemote()">Huỷ yêu cầu</button>' +
+            '<button class="btn-modal-primary" disabled style="opacity:0.4;">Đang chờ...</button>';
+        startCountdown();
+        // Simulate: sau 3s app confirm
+        setTimeout(function() {
+            signState = 'verifying';
+            renderRemote();
+            setTimeout(function() {
+                signState = 'done';
+                renderRemote();
+            }, 1500);
+        }, 3000);
+    } else if (signState === 'verifying') {
+        body.innerHTML =
+            '<div class="sign-step done"><div class="step-icon">✓</div><div class="step-text"><div class="step-label">App đã xác nhận ký</div><div class="step-sub">Chữ ký nhận được từ Bkav eSign</div></div></div>' +
+            '<div class="sign-step active"><div class="step-icon"><span class="spinner"></span></div><div class="step-text"><div class="step-label">Xác minh chứng thư (OCSP)</div><div class="step-sub">Kiểm tra hiệu lực CKS + khớp CCCD...</div></div></div>';
+        footer.innerHTML = '<button class="btn-modal-primary" disabled>Đang xác minh...</button>';
+    } else if (signState === 'done') {
+        body.innerHTML =
+            '<div class="sign-step done"><div class="step-icon">✓</div><div class="step-text"><div class="step-label">App đã xác nhận ký</div><div class="step-sub">Chữ ký nhận được từ Bkav eSign</div></div></div>' +
+            '<div class="sign-step done"><div class="step-icon">✓</div><div class="step-text"><div class="step-label">Xác minh chứng thư (OCSP)</div><div class="step-sub">Chứng thư hợp lệ · serialNumber khớp CCCD</div></div></div>';
+        footer.innerHTML = '<button class="btn-modal-primary" onclick="onSignSuccess()" style="background:#52C41A;">✅ Hoàn tất — Xem tài liệu</button>';
+    } else if (signState === 'error_timeout') {
+        body.innerHTML =
+            '<div style="text-align:center;padding:16px 0;">' +
+                '<div style="font-size:36px;margin-bottom:10px;">⏱️</div>' +
+                '<div style="font-size:14px;font-weight:600;color:#CF1322;margin-bottom:6px;">Hết thời gian chờ</div>' +
+                '<div style="font-size:13px;color:var(--n600);">Không nhận được phản hồi từ app Bkav eSign.<br>Kiểm tra kết nối và thử lại.</div>' +
+            '</div>';
+        footer.innerHTML =
+            '<button class="btn-modal-cancel" onclick="closeSignModal()">Đóng</button>' +
+            '<button class="btn-modal-primary" onclick="retryRemote()">Thử lại</button>';
+    }
+}
+
+var countdownTimer;
+function startCountdown() {
+    var n = 60;
+    countdownTimer = setInterval(function() {
+        n--;
+        var el = document.getElementById('countdown');
+        if (el) el.textContent = n;
+        if (n <= 0) {
+            clearInterval(countdownTimer);
+            signState = 'error_timeout';
+            renderRemote();
+        }
+    }, 1000);
+}
+
+function startRemoteSign() {
+    signState = 'signing';
+    renderRemote();
+}
+
+function cancelRemote() {
+    clearInterval(countdownTimer);
+    closeSignModal();
+}
+
+function retryRemote() {
+    signState = 'confirming';
+    renderRemote();
+}
+
+// ===== Kết quả ký thành công =====
+function onSignSuccess() {
+    closeSignModal();
+    // Mở tài liệu + cập nhật Evidence (giống flow action=accept)
+    document.getElementById('doc-content').style.filter = 'none';
+    document.getElementById('doc-content').style.opacity = '1';
+    document.getElementById('doc-content').style.pointerEvents = 'auto';
+    document.getElementById('doc-content').style.userSelect = 'auto';
+    document.getElementById('sign-overlay').style.display = 'none';
+    document.getElementById('status-badge').className = 'badge-status';
+    document.getElementById('status-badge').style.background = '#f6ffed';
+    document.getElementById('status-badge').style.color = '#237804';
+    document.getElementById('status-badge').textContent = '✅ Đã xác nhận';
+    document.getElementById('ev-c3-done').style.display = 'block';
+    document.getElementById('ev-e1-pending').style.display = 'none';
+    document.getElementById('ev-e1-done').style.display = 'block';
+    // Thay sign-actions thành thông báo đã ký
+    document.getElementById('sign-actions').innerHTML =
+        '<div style="padding:14px 0;display:flex;align-items:center;gap:10px;color:#237804;font-size:13px;font-weight:600;">' +
+        '✅ Đã ký xác nhận thành công · Minh chứng C.3 + E.1 đã được tạo</div>';
+}
+
+function toggleSignBtn() {
+    var checked = document.getElementById('chkConfirm').checked;
+    var btn = document.getElementById('btnSign');
+    if (checked) {
+        btn.disabled = false;
+        btn.classList.add('enabled');
+    } else {
+        btn.disabled = true;
+        btn.classList.remove('enabled');
+    }
+}
+
+var params = new URLSearchParams(window.location.search);
+
+// action=reject — hiện màn từ chối ngay sau đăng nhập
+if (params.get('action') === 'reject') {
+    // Ẩn vùng tài liệu và ký
+    document.getElementById('sign-overlay').style.display = 'none';
+    document.getElementById('sign-actions').innerHTML = `
+        <div style="margin-top:8px;padding:20px;background:#fff1f0;border:1.5px solid #ffccc7;border-radius:8px;text-align:center;">
+            <div style="font-size:32px;margin-bottom:10px;">⚠️</div>
+            <div style="font-size:15px;font-weight:700;color:#CF1322;margin-bottom:8px;">Xác nhận từ chối tài liệu</div>
+            <div style="font-size:13px;color:#666;margin-bottom:16px;line-height:1.6;">
+                Bạn đang từ chối nhận <strong>Hợp đồng lao động 2026</strong> (3 tài liệu đính kèm).<br>
+                Hành động này có giá trị pháp lý và không thể hoàn tác.
+            </div>
+            <button onclick="doReject()" style="padding:11px 28px;background:#FF4D4F;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">
+                ❌ Xác nhận từ chối
+            </button>
+            <div style="margin-top:10px;">
+                <button onclick="window.location.href='R-MH-03-detail.html?msgid=20260529.00123@emas.vn'" style="background:none;border:none;font-size:13px;color:#666;cursor:pointer;font-family:inherit;text-decoration:underline;">Huỷ, quay lại xem tài liệu</button>
+            </div>
+        </div>
+    `;
+    // Cập nhật status badge
+    var badge = document.getElementById('status-badge');
+    badge.textContent = '⚠️ Chờ xác nhận từ chối';
+    badge.style.background = '#fff1f0';
+    badge.style.color = '#CF1322';
+}
+
+function doReject() {
+    // Cập nhật UI sau khi từ chối
+    document.getElementById('sign-actions').innerHTML = `
+        <div style="margin-top:8px;padding:24px;background:#fff1f0;border:1.5px solid #ffccc7;border-radius:8px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:10px;">🚫</div>
+            <div style="font-size:15px;font-weight:700;color:#CF1322;margin-bottom:6px;">Đã từ chối nhận tài liệu</div>
+            <div style="font-size:13px;color:#666;line-height:1.6;">Minh chứng từ chối (C.4) đã được tạo và lưu.<br>Người gửi sẽ được thông báo tự động.</div>
+        </div>
+    `;
+    var badge = document.getElementById('status-badge');
+    badge.textContent = '❌ Đã từ chối';
+    badge.style.background = '#fff1f0';
+    badge.style.color = '#CF1322';
+    // Cập nhật Evidence: ẩn E.1 pending, hiện C.4
+    document.getElementById('ev-e1-pending').style.display = 'none';
+    document.getElementById('ev-e1-done').style.display = 'none';
+    var evSection = document.getElementById('ev-e1-pending').parentNode;
+    var c4block = document.createElement('div');
+    c4block.style.cssText = 'background:#fff1f0;border:1px solid #ffccc7;border-radius:8px;padding:14px 16px;';
+    c4block.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:13px;font-weight:600;color:#CF1322;">Minh chứng từ chối (C.4)</div>
+            <span style="background:#fff1f0;color:#CF1322;border:1px solid #ffccc7;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">ConsignmentRejection</span>
+        </div>
+        <div style="font-size:12px;color:#666;display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;"><span>Thời điểm</span><span style="font-weight:500;color:#333;">29/05/2026 11:05:22 GMT+7</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Evidence ID</span><span style="font-family:monospace;font-size:11px;color:#333;">EV-20260529-C4-NODE01-998880</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Xác nhận người nhận</span><span style="font-weight:500;color:#333;">✅ Signed Consent (CKS)</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Dấu thời gian (TSA)</span><span style="font-weight:500;color:#333;">VNPT CA · 11:05:23</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Lưu trữ dài hạn (LTP)</span><span style="font-weight:500;color:#333;">✅ Đã lưu</span></div>
+        </div>
+    `;
+    evSection.appendChild(c4block);
+}
+
+// action=accept hoặc signed=1 — hiện tài liệu, ẩn overlay
+if (params.get('signed') === '1' || params.get('action') === 'accept') {
+    document.getElementById('doc-content').style.filter = 'none';
+    document.getElementById('doc-content').style.opacity = '1';
+    document.getElementById('doc-content').style.pointerEvents = 'auto';
+    document.getElementById('doc-content').style.userSelect = 'auto';
+    document.getElementById('sign-overlay').style.display = 'none';
+    document.getElementById('status-badge').className = 'badge-status';
+    document.getElementById('status-badge').style.background = '#f6ffed';
+    document.getElementById('status-badge').style.color = '#237804';
+    document.getElementById('status-badge').textContent = '✅ Đã xác nhận';
+    document.getElementById('ev-c3-done').style.display = 'block';
+    document.getElementById('ev-e1-pending').style.display = 'none';
+    document.getElementById('ev-e1-done').style.display = 'block';
+}
+</script>
+</body>
+</html>

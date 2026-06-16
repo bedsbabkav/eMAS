@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đã gửi - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6633; --primary-dark: #E65A2E; --primary-light: rgba(255,102,51,0.08);
+            --teal: #4DD4D5; --success: #52C41A; --warning: #FAAD14; --danger: #FF4D4F;
+            --n900: #1A1A1A; --n800: #333; --n600: #666; --n400: #999;
+            --n200: #E0E0E0; --n100: #F0F0F0; --n50: #F7F7F7; --white: #FFF;
+            --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--n800); background: var(--n50); }
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: var(--white); border-right: 1px solid var(--n200); padding: 16px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .logo { margin-bottom: 32px; padding: 8px; }
+        .logo-name { font-size: 16px; font-weight: 600; }
+        .logo-bkav { color: var(--primary); font-weight: 700; }
+        .logo-emas { color: var(--teal); font-weight: 600; }
+        .logo-sub { font-size: 11px; color: var(--n400); margin-top: 2px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: var(--n600); text-decoration: none; border-radius: 6px; transition: all 0.15s; font-size: 13px; }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+        .main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+        .topbar { background: var(--white); border-bottom: 1px solid var(--n200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; }
+        .topbar-user { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 600; flex-shrink: 0; }
+        .user-name { font-size: 13px; font-weight: 500; color: var(--n900); }
+        .user-id { font-size: 11px; color: var(--n400); }
+        .btn-logout { font-size: 12px; color: var(--n400); text-decoration: none; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--n200); }
+        .btn-logout:hover { color: var(--danger); background: #fff1f0; border-color: var(--danger); }
+        .main-body { flex: 1; padding: 24px; overflow: auto; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .page-title { font-size: 20px; font-weight: 700; color: var(--n900); }
+        .btn-compose { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; text-decoration: none; cursor: pointer; transition: all 0.15s; }
+        .btn-compose:hover { background: var(--primary-dark); }
+        .filter-bar { background: var(--white); border: 1px solid var(--n200); border-radius: var(--radius); padding: 12px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+        .filter-tabs { display: flex; gap: 4px; }
+        .filter-tab { padding: 5px 14px; border-radius: 99px; font-size: 13px; cursor: pointer; border: 1px solid var(--n200); background: var(--white); color: var(--n600); transition: all 0.15s; font-family: inherit; }
+        .filter-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .filter-tab:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+        .filter-sep { color: var(--n200); }
+        .search-input { flex: 1; min-width: 200px; padding: 7px 12px; border: 1px solid var(--n200); border-radius: 6px; font-size: 13px; font-family: inherit; }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .filter-select { padding: 7px 12px; border: 1px solid var(--n200); border-radius: 6px; font-size: 13px; font-family: inherit; color: var(--n800); }
+        .table-wrap { background: var(--white); border: 1px solid var(--n200); border-radius: var(--radius); overflow: hidden; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); background: var(--n50); border-bottom: 1px solid var(--n200); white-space: nowrap; }
+        .table td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid var(--n100); vertical-align: middle; }
+        .table tr:last-child td { border-bottom: none; }
+        .table tr:hover td { background: #fffbf8; }
+        .msg-title { font-weight: 600; color: var(--n900); }
+        .msg-title a { text-decoration: none; color: inherit; }
+        .msg-title a:hover { color: var(--primary); }
+        .msg-id { font-size: 11px; color: var(--n400); font-family: 'Courier New', monospace; margin-top: 2px; }
+        .recipient-name { font-weight: 500; }
+        .recipient-id { font-size: 11px; color: var(--n400); margin-top: 1px; font-family: 'Courier New', monospace; }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .badge-delivered { background: #f6ffed; color: #237804; }
+        .badge-consigned { background: #e6f7ff; color: #0958d9; }
+        .badge-pending { background: #fff7e6; color: #d46b08; }
+        .mode { display: inline-flex; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+        .mode-signed { background: #f0e6ff; color: #722ED1; }
+        .mode-consent { background: #fff7e6; color: #d46b08; }
+        .mode-basic { background: #e6f7ff; color: #0958d9; }
+        .btn-view { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; background: var(--white); border: 1px solid var(--n200); border-radius: 6px; font-size: 12px; color: var(--n800); text-decoration: none; transition: all 0.15s; }
+        .btn-view:hover { border-color: var(--primary); color: var(--primary); }
+        .pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--n200); font-size: 13px; color: var(--n600); flex-wrap: wrap; gap: 8px; }
+        .page-right { display: flex; align-items: center; gap: 16px; }
+        .page-size { display: flex; align-items: center; gap: 6px; }
+        .page-size-select { padding: 5px 8px; border: 1px solid var(--n200); border-radius: 6px; font-size: 13px; font-family: inherit; color: var(--n800); background: var(--white); cursor: pointer; }
+        .page-size-select:focus { outline: none; border-color: var(--primary); }
+        .page-btns { display: flex; gap: 4px; }
+        .page-btn { min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--n200); border-radius: 6px; cursor: pointer; font-size: 13px; background: var(--white); font-family: inherit; color: var(--n800); padding: 0 6px; }
+        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .page-btn:disabled { color: var(--n400); cursor: not-allowed; background: var(--n50); }
+        .page-btn:hover:not(.active):not(:disabled) { border-color: var(--primary); color: var(--primary); }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-name"><span class="logo-bkav">Bkav</span> | <span class="logo-emas">eMAS</span></div>
+            <div class="logo-sub">Dịch vụ Chứng thực Thông điệp Dữ liệu</div>
+        </div>
+        <nav>
+            <div class="nav-item"><a href="S-MH-01-dashboard.html" class="nav-link">🏠 Dashboard</a></div>
+            <div class="nav-item"><a href="S-MH-02-compose.html" class="nav-link">✏️ Tạo thông điệp mới</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">📥 Hộp thư đến</a></div>
+            <div class="nav-item"><a href="S-MH-04-sent.html" class="nav-link active">📤 Đã gửi</a></div>
+            <div class="nav-item"><a href="S-MH-05-trustlist.html" class="nav-link">🛡️ ERDS tin cậy</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">⚙️ Cài đặt</a></div>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-user">
+                <div class="user-avatar">N</div>
+                <div>
+                    <div class="user-name">Nga xinh đẹp</div>
+                    <div class="user-id">012345678901@eMAS.vn</div>
+                </div>
+                <a href="S-MH-00-login.html" class="btn-logout">Đăng xuất</a>
+            </div>
+        </div>
+        <div class="main-body">
+            <div class="page-header">
+                <div class="page-title">📤 Thông điệp đã gửi</div>
+                <a href="S-MH-02-compose.html" class="btn-compose">+ Tạo thông điệp mới</a>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-tabs">
+                    <button class="filter-tab active">Tất cả (8)</button>
+                    <button class="filter-tab">Đã bàn giao (5)</button>
+                    <button class="filter-tab">Đã ký gửi (2)</button>
+                    <button class="filter-tab">Chờ bàn giao (1)</button>
+                </div>
+                <span class="filter-sep">|</span>
+                <input type="text" class="search-input" placeholder="🔍 Tìm MessageID, người nhận...">
+                <input type="date" class="filter-select">
+            </div>
+
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Thông điệp</th>
+                            <th>Người nhận</th>
+                            <th>Hình thức</th>
+                            <th>Ngày gửi</th>
+                            <th>Hạn bàn giao</th>
+                            <th>Trạng thái</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><div class="msg-title"><a href="S-MH-05-detail.html">Hợp đồng lao động 2026</a></div><div class="msg-id">20260529.00123@emas.vn</div></td>
+                            <td><div class="recipient-name">Nguyễn Văn C</div><div class="recipient-id">034567890123@eMAS.vn</div></td>
+                            <td><span class="mode mode-signed">🔏 Signed Consent</span></td>
+                            <td>29/05/2026</td>
+                            <td>08/06/2026</td>
+                            <td><span class="badge badge-delivered">✅ Đã bàn giao</span></td>
+                            <td><a href="S-MH-05-detail.html" class="btn-view">Xem →</a></td>
+                        </tr>
+                        <tr>
+                            <td><div class="msg-title"><a href="S-MH-05-detail.html">Phụ lục hợp đồng — Điều chỉnh lương</a></div><div class="msg-id">20260525.00087@emas.vn</div></td>
+                            <td><div class="recipient-name">Trần Thị D</div><div class="recipient-id">098765432109@eMAS.vn</div></td>
+                            <td><span class="mode mode-consent">🤝 Consent</span></td>
+                            <td>25/05/2026</td>
+                            <td>04/06/2026</td>
+                            <td><span class="badge badge-delivered">✅ Đã bàn giao</span></td>
+                            <td><a href="S-MH-05-detail.html" class="btn-view">Xem →</a></td>
+                        </tr>
+                        <tr>
+                            <td><div class="msg-title"><a href="S-MH-05-detail.html">Quyết định bổ nhiệm Trưởng nhóm</a></div><div class="msg-id">20260524.00234@emas.vn</div></td>
+                            <td><div class="recipient-name">Lê Văn E</div><div class="recipient-id">levano.e@gmail.com</div></td>
+                            <td><span class="mode mode-basic">📋 Basic</span></td>
+                            <td>24/05/2026</td>
+                            <td>03/06/2026</td>
+                            <td><span class="badge badge-consigned">📨 Đã ký gửi</span></td>
+                            <td><a href="S-MH-05-detail.html" class="btn-view">Xem →</a></td>
+                        </tr>
+                        <tr>
+                            <td><div class="msg-title"><a href="S-MH-05-detail.html">Thông báo nội bộ Q2/2026</a></div><div class="msg-id">20260523.00156@emas.vn</div></td>
+                            <td><div class="recipient-name">Phạm Thị F</div><div class="recipient-id">045678901234@eMAS.vn</div></td>
+                            <td><span class="mode mode-basic">📋 Basic</span></td>
+                            <td>23/05/2026</td>
+                            <td style="color:#CF1322;font-weight:500;">24/05/2026 ⚠️</td>
+                            <td><span class="badge badge-pending">⏳ Chờ bàn giao</span></td>
+                            <td><a href="S-MH-05-detail.html" class="btn-view">Xem →</a></td>
+                        </tr>
+                        <tr>
+                            <td><div class="msg-title"><a href="S-MH-05-detail.html">Hợp đồng lao động 2026</a></div><div class="msg-id">20260522.00098@emas.vn</div></td>
+                            <td><div class="recipient-name">Hoàng Văn G</div><div class="recipient-id">056789012345@eMAS.vn</div></td>
+                            <td><span class="mode mode-signed">🔏 Signed Consent</span></td>
+                            <td>22/05/2026</td>
+                            <td>01/06/2026</td>
+                            <td><span class="badge badge-delivered">✅ Đã bàn giao</span></td>
+                            <td><a href="S-MH-05-detail.html" class="btn-view">Xem →</a></td>
+                        </tr>
+                        <tr>
+                            <td><div class="msg-title"><a href="S-MH-05-detail.html">Hợp đồng thử việc</a></div><div class="msg-id">20260521.00221@emas.vn</div></td>
+                            <td><div class="recipient-name">Vũ Thị H</div><div class="recipient-id">067890123456@eMAS.vn</div></td>
+                            <td><span class="mode mode-consent">🤝 Consent</span></td>
+                            <td>21/05/2026</td>
+                            <td>31/05/2026</td>
+                            <td><span class="badge badge-delivered">✅ Đã bàn giao</span></td>
+                            <td><a href="S-MH-05-detail.html" class="btn-view">Xem →</a></td>
+                        </tr>
+                        <tr>
+                            <td><div class="msg-title"><a href="S-MH-05-detail.html">Quyết định tăng lương</a></div><div class="msg-id">20260520.00134@emas.vn</div></td>
+                            <td><div class="recipient-name">Đỗ Văn I</div><div class="recipient-id">dovan.i@gmail.com</div></td>
+                            <td><span class="mode mode-signed">🔏 Signed Consent</span></td>
+                            <td>20/05/2026</td>
+                            <td>30/05/2026</td>
+                            <td><span class="badge badge-consigned">📨 Đã ký gửi</span></td>
+                            <td><a href="S-MH-05-detail.html" class="btn-view">Xem →</a></td>
+                        </tr>
+                        <tr>
+                            <td><div class="msg-title"><a href="S-MH-05-detail.html">Hợp đồng lao động 2026</a></div><div class="msg-id">20260519.00187@emas.vn</div></td>
+                            <td><div class="recipient-name">Bùi Thị K</div><div class="recipient-id">089012345678@eMAS.vn</div></td>
+                            <td><span class="mode mode-basic">📋 Basic</span></td>
+                            <td>19/05/2026</td>
+                            <td>29/05/2026</td>
+                            <td><span class="badge badge-delivered">✅ Đã bàn giao</span></td>
+                            <td><a href="S-MH-05-detail.html" class="btn-view">Xem →</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <span id="pageInfo">Hiển thị 1–8 / 8 thông điệp</span>
+                    <div class="page-right">
+                        <div class="page-size">
+                            <span>Số thông điệp/trang:</span>
+                            <select class="page-size-select" id="pageSize" onchange="changePageSize()">
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                        <div class="page-btns">
+                            <button class="page-btn" disabled title="Trang trước">‹</button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn" disabled title="Trang sau">›</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- end main-body -->
+    </main>
+</div>
+<script>
+    function changePageSize() {
+        // Demo: tổng 8 thông điệp nên mọi page size đều hiển thị đủ trong 1 trang
+        document.getElementById('pageInfo').textContent = 'Hiển thị 1–8 / 8 thông điệp';
+    }
+</script>
+</body>
+</html>

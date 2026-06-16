@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo thông điệp mới - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6633;
+            --primary-dark: #E65A2E;
+            --primary-light: rgba(255,102,51,0.08);
+            --teal: #4DD4D5;
+            --success: #52C41A;
+            --danger: #FF4D4F;
+            --n900: #1A1A1A;
+            --n800: #333333;
+            --n700: #4D4D4D;
+            --n600: #666666;
+            --n300: #CCCCCC;
+            --n200: #E0E0E0;
+            --n50: #F7F7F7;
+            --white: #FFFFFF;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--n800); background: var(--n50); }
+        .app { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px; background: var(--white);
+            border-right: 1px solid var(--n200);
+            padding: 16px; flex-shrink: 0;
+            display: flex; flex-direction: column;
+        }
+        .logo { margin-bottom: 32px; padding: 8px; }
+        .logo-name { font-size: 16px; font-weight: 600; }
+        .logo-bkav { color: var(--primary); font-weight: 700; }
+        .logo-emas { color: var(--teal); font-weight: 600; }
+        .logo-sub { font-size: 11px; color: #999; margin-top: 2px; }
+
+        .nav-item { margin-bottom: 4px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 12px; color: var(--n600);
+            text-decoration: none; border-radius: 6px;
+            transition: all 0.15s; font-size: 13px;
+        }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+
+        /* Topbar */
+        .main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+        .topbar { background: var(--white); border-bottom: 1px solid var(--n200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; }
+        .topbar-user { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 600; flex-shrink: 0; }
+        .user-name { font-size: 13px; font-weight: 500; color: var(--n900); }
+        .user-id { font-size: 11px; color: var(--n400); }
+        .btn-logout { font-size: 12px; color: var(--n400); text-decoration: none; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--n200); }
+        .btn-logout:hover { color: var(--danger); background: #fff1f0; border-color: var(--danger); }
+        .main-body { flex: 1; padding: 24px; overflow: auto; }
+
+        .page-header { margin-bottom: 20px; }
+        .breadcrumb {
+            display: flex; gap: 6px; font-size: 12px;
+            color: var(--n600); margin-bottom: 6px;
+        }
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+        .page-title { font-size: 20px; font-weight: 700; color: var(--n900); }
+
+        .card {
+            background: var(--white); border-radius: var(--radius);
+            box-shadow: var(--shadow); padding: 28px;
+        }
+
+        /* Section */
+        .form-section { margin-bottom: 28px; }
+        .section-title {
+            font-size: 14px; font-weight: 600; color: var(--n900);
+            margin-bottom: 16px; padding-bottom: 12px;
+            border-bottom: 1px solid var(--n200);
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .form-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        .form-label {
+            font-size: 13px; font-weight: 500;
+            color: var(--n800); margin-bottom: 6px;
+        }
+        .form-label .req { color: var(--danger); }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 10px 12px;
+            border: 1px solid var(--n300); border-radius: 6px;
+            font-size: 14px; font-family: 'Inter', sans-serif;
+            color: var(--n800); transition: all 0.15s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-hint { font-size: 12px; color: var(--n600); margin-top: 4px; }
+
+        /* File upload */
+        .file-upload {
+            border: 2px dashed var(--n300); border-radius: var(--radius);
+            padding: 28px; text-align: center; cursor: pointer;
+            transition: all 0.15s; position: relative;
+        }
+        .file-upload:hover, .file-upload.drag-over { border-color: var(--primary); background: var(--primary-light); }
+        .file-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+        .file-icon { font-size: 40px; margin-bottom: 10px; }
+        .file-text { font-size: 14px; color: var(--n700); margin-bottom: 4px; }
+        .file-hint { font-size: 12px; color: var(--n600); }
+
+        /* Multi-file list */
+        .file-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .file-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; background: #f0fff4;
+            border: 1px solid #b7eb8f; border-radius: 6px;
+        }
+        .file-item.uploading { background: #e6f4ff; border-color: #91caff; }
+        .file-sel-icon { font-size: 22px; flex-shrink: 0; }
+        .file-sel-info { flex: 1; min-width: 0; }
+        .file-sel-name { font-weight: 500; color: var(--n900); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-sel-size { font-size: 12px; color: var(--n600); }
+        .file-progress { width: 100%; height: 3px; background: var(--n200); border-radius: 99px; margin-top: 4px; overflow: hidden; }
+        .file-progress-bar { height: 100%; background: #1890ff; border-radius: 99px; transition: width .3s; }
+        .file-remove {
+            background: none; border: none;
+            color: var(--danger); cursor: pointer; font-size: 15px; padding: 4px; flex-shrink: 0;
+        }
+        .file-summary { font-size: 12px; color: var(--n600); margin-top: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin { display: inline-block; animation: spin 1s linear infinite; }
+
+        /* Radio options */
+        .radio-group { display: flex; flex-direction: column; gap: 10px; }
+        .radio-option {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 14px 16px; border: 1.5px solid var(--n200);
+            border-radius: var(--radius); cursor: pointer; transition: all 0.15s;
+        }
+        .radio-option:hover { border-color: var(--primary); background: var(--primary-light); }
+        .radio-option.selected { border-color: var(--primary); background: var(--primary-light); }
+        .radio-option input[type="radio"] { margin-top: 2px; cursor: pointer; flex-shrink: 0; }
+        .radio-body { flex: 1; }
+        .radio-title { font-weight: 600; color: var(--n900); margin-bottom: 2px; font-size: 13px; }
+        .radio-desc { font-size: 12px; color: var(--n600); }
+
+        .nested { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+
+        /* Employee info block */
+        .emp-info {
+            padding: 12px 14px; background: #f0fff4;
+            border-radius: 6px; border: 1px solid #b7eb8f;
+            display: grid; grid-template-columns: 100px 1fr; gap: 8px;
+            font-size: 13px;
+        }
+        .emp-info-label { color: var(--n600); font-weight: 500; }
+        .emp-info-val { color: var(--n900); font-family: 'Courier New', monospace; }
+
+        /* Form actions */
+        .form-actions {
+            display: flex; justify-content: flex-end; gap: 12px;
+            margin-top: 24px; padding-top: 20px;
+            border-top: 1px solid var(--n200);
+        }
+        .btn {
+            padding: 11px 20px; border-radius: 6px;
+            font-size: 14px; font-weight: 500;
+            cursor: pointer; border: none;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.15s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-ghost {
+            background: transparent; color: var(--n600);
+            border: 1px solid var(--n300);
+        }
+        .btn-ghost:hover { background: var(--n50); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-name"><span class="logo-bkav">Bkav</span> | <span class="logo-emas">eMAS</span></div>
+            <div class="logo-sub">Dịch vụ Chứng thực Thông điệp Dữ liệu</div>
+        </div>
+        <nav>
+            <div class="nav-item"><a href="S-MH-01-dashboard.html" class="nav-link">🏠 Dashboard</a></div>
+            <div class="nav-item"><a href="S-MH-02-compose.html" class="nav-link active">✏️ Tạo thông điệp mới</a></div>
+            <div class="nav-item"><a href="S-MH-inbox.html" class="nav-link">📥 Hộp thư đến</a></div>
+            <div class="nav-item"><a href="S-MH-04-sent.html" class="nav-link">📤 Đã gửi</a></div>
+            <div class="nav-item"><a href="S-MH-05-trustlist.html" class="nav-link">🛡️ ERDS tin cậy</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">⚙️ Cài đặt</a></div>
+        </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-user">
+                <div class="user-avatar">N</div>
+                <div>
+                    <div class="user-name">Nga xinh đẹp</div>
+                    <div class="user-id">012345678901@eMAS.vn</div>
+                </div>
+                <a href="S-MH-00-login.html" class="btn-logout">Đăng xuất</a>
+            </div>
+        </div>
+        <div class="main-body">
+        <div class="page-header">
+            <div class="breadcrumb">
+                <a href="S-MH-01-dashboard.html">Dashboard</a>
+                <span>›</span>
+                <span>Tạo thông điệp mới</span>
+            </div>
+            <div class="page-title">✏️ Tạo thông điệp mới</div>
+        </div>
+
+        <div class="card">
+
+
+
+            <form id="composeForm">
+
+                <!-- Step 1: Upload tài liệu -->
+                <div class="form-section" id="step1">
+                    <div class="section-title">📄 Bước 1 — Upload tài liệu</div>
+
+                    <div class="form-grid" style="margin-bottom: 16px;">
+                        <div class="form-group full">
+                            <label class="form-label">Tiêu đề thông điệp <span class="req">*</span></label>
+                            <input type="text" class="form-input" id="msgTitle" placeholder="VD: Hợp đồng lao động 2026 — Nguyễn Văn C">
+                        </div>
+
+                        <div class="form-group full">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea class="form-textarea" placeholder="Ghi chú cho người nhận..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="file-upload" id="dropZone"
+                         ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                        <input type="file" id="fileInput" accept=".pdf,.docx,.xlsx,.jpg,.png" multiple onchange="handleFile(event)">
+                        <div class="file-icon">📄</div>
+                        <div class="file-text">Kéo thả file hoặc click để chọn</div>
+                        <div class="file-hint">Tối đa 10 file · 10 MB/file</div>
+                    </div>
+                    <div id="fileList" class="file-list"></div>
+                    <div id="fileSummary" class="file-summary" style="display:none"></div>
+                </div>
+
+                <!-- Step 2: Người nhận -->
+                <div class="form-section" id="step2">
+                    <div class="section-title">👤 Bước 2 — Chọn người nhận</div>
+
+                    <div class="radio-group">
+                        <!-- Trong hệ thống -->
+                        <label class="radio-option" id="opt-internal" onclick="selectMethod('internal')">
+                            <input type="radio" name="method" value="internal">
+                            <div class="radio-body">
+                                <div class="radio-title">Tài khoản eMAS</div>
+                                <div class="nested" id="field-internal" style="display:none;">
+                                    <div class="form-group">
+                                        <label class="form-label">Chọn người nhận <span class="req">*</span></label>
+                                        <select class="form-select" id="empSelect" onchange="loadEmpInfo()">
+                                            <option value="">-- Chọn --</option>
+                                            <option value="emp1" data-name="Nguyễn Văn C" data-cccd="012345678901" data-emas="012345678901@eMAS.vn" data-email="nguyenvanc@gmail.com">Nguyễn Văn C (012345678901@eMAS.vn)</option>
+                                            <option value="emp2" data-name="Trần Thị D" data-cccd="098765432109" data-emas="098765432109@eMAS.vn" data-email="tranthid@gmail.com">Trần Thị D (098765432109@eMAS.vn)</option>
+                                            <option value="emp3" data-name="Hoàng Văn G" data-cccd="056789012345" data-emas="056789012345@eMAS.vn" data-email="hoangvang@gmail.com">Hoàng Văn G (056789012345@eMAS.vn)</option>
+                                        </select>
+                                    </div>
+                                    <div id="empInfo" style="display:none;" class="emp-info">
+                                        <span class="emp-info-label">Họ tên:</span><span class="emp-info-val" id="ei-name"></span>
+                                        <span class="emp-info-label">CCCD:</span><span class="emp-info-val" id="ei-cccd"></span>
+                                        <span class="emp-info-label">eMAS:</span><span class="emp-info-val" id="ei-emas"></span>
+                                        <span class="emp-info-label">Email liên hệ:</span><span class="emp-info-val" id="ei-email"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Hình thức gửi <span class="req">*</span></label>
+                                        <select class="form-select" id="modeInternal">
+                                            <option value="">-- Chọn --</option>
+                                            <option value="basic">Cơ bản (Basic)</option>
+                                            <option value="consent">Đồng ý (Consent)</option>
+                                            <option value="signed">Đồng ý có chữ ký (Signed Consent)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Ngoài hệ thống -->
+                        <label class="radio-option" id="opt-external" onclick="selectMethod('external')">
+                            <input type="radio" name="method" value="external">
+                            <div class="radio-body">
+                                <div class="radio-title">Tài khoản ERDS khác</div>
+                                <div class="nested" id="field-external" style="display:none;">
+                                    <div class="form-group">
+                                        <label class="form-label">ERDS đối tác <span class="req">*</span></label>
+                                        <select class="form-select">
+                                            <option value="">-- Chọn ERDS --</option>
+                                            <option>VNPT eMAS (vnpt-emas.vn)</option>
+                                            <option>Viettel eMAS (vt-emas.vn)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Số CCCD / MST <span class="req">*</span></label>
+                                        <input type="text" class="form-input" placeholder="012345678901" maxlength="12">
+                                        
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Email thông báo <span class="req">*</span></label>
+                                        <input type="email" class="form-input" placeholder="nguoinhan@email.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Hình thức gửi <span class="req">*</span></label>
+                                        <select class="form-select" id="modeExternal">
+                                            <option value="">-- Chọn --</option>
+                                            <option value="basic">Cơ bản (Basic)</option>
+                                            <option value="signed">Đồng ý có chữ ký (Signed Consent)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <a href="S-MH-01-dashboard.html" class="btn btn-ghost">Hủy</a>
+                    <button type="button" id="btnAs4" class="btn btn-ghost" style="display:none;border-color:#4DD4D5;color:#2A9A9B;" onclick="downloadAs4Sample()">
+                        📦 Download AS4 Sample
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmit">
+                        📤 Gửi thông điệp
+                    </button>
+                </div>
+            </form>
+
+            <!-- Modal: inter-ERDS chưa hỗ trợ -->
+            <div id="modalInterErds" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:center;justify-content:center;">
+                <div style="background:white;border-radius:12px;padding:32px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);text-align:center;">
+                    <div style="font-size:48px;margin-bottom:16px;">🚧</div>
+                    <div style="font-size:17px;font-weight:700;color:#1A1A1A;margin-bottom:8px;">Chức năng chưa hỗ trợ</div>
+                    <div style="font-size:13px;color:#666;line-height:1.6;margin-bottom:24px;">
+                        Gửi thông điệp qua <b>ERDS khác</b> (inter-ERDS / AS4) chưa được hỗ trợ <br><br>
+                        Bạn có thể <b>Download AS4 Sample</b> để xem cấu trúc gói tin AS4/ebMS 3.0.
+                    </div>
+                    <button onclick="document.getElementById('modalInterErds').style.display='none'" style="padding:10px 28px;background:#FF6633;color:white;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+        </div><!-- end main-body -->
+    </main>
+</div>
+
+<script>
+    // ── Multi-file ──
+    const iconMap = { pdf:'📄', docx:'📝', doc:'📝', xlsx:'📊', xls:'📊', jpg:'🖼️', jpeg:'🖼️', png:'🖼️' };
+
+    function handleFile(e) {
+        Array.from(e.target.files).forEach(addFile);
+        e.target.value = ''; // reset để chọn lại cùng file
+    }
+    function handleDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag-over'); }
+    function handleDragLeave() { document.getElementById('dropZone').classList.remove('drag-over'); }
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('dropZone').classList.remove('drag-over');
+        Array.from(e.dataTransfer.files).forEach(addFile);
+    }
+
+    function addFile(f) {
+        if (document.querySelectorAll('#fileList .file-item').length >= 10) return;
+        const ext = f.name.split('.').pop().toLowerCase();
+        const icon = iconMap[ext] || '📎';
+        const size = f.size < 1048576 ? (f.size/1024).toFixed(0)+' KB' : (f.size/1048576).toFixed(1)+' MB';
+
+        const item = document.createElement('div');
+        item.className = 'file-item uploading';
+        item.innerHTML = `
+            <div class="file-sel-icon">${icon}</div>
+            <div class="file-sel-info">
+                <div class="file-sel-name">${f.name}</div>
+                <div class="file-sel-size">${size} · <span class="spin">⟳</span> Đang xử lý...</div>
+                <div class="file-progress"><div class="file-progress-bar" style="width:0%"></div></div>
+            </div>
+            <button type="button" class="file-remove">✕</button>`;
+        item.querySelector('.file-remove').onclick = () => { item.remove(); updateSummary(); };
+        document.getElementById('fileList').appendChild(item);
+        updateSummary();
+
+        // Simulate upload progress
+        let pct = 0;
+        const bar = item.querySelector('.file-progress-bar');
+        const iv = setInterval(() => {
+            pct = Math.min(100, pct + Math.floor(Math.random()*20)+8);
+            bar.style.width = pct + '%';
+            if (pct >= 100) {
+                clearInterval(iv);
+                item.classList.remove('uploading');
+                item.querySelector('.file-sel-size').textContent = size;
+                item.querySelector('.file-progress').remove();
+            }
+        }, 180);
+    }
+
+    function updateSummary() {
+        const items = document.querySelectorAll('#fileList .file-item');
+        const sum = document.getElementById('fileSummary');
+        if (items.length === 0) { sum.style.display = 'none'; return; }
+        sum.style.display = 'block';
+        sum.textContent = `${items.length} file đã chọn · Còn có thể thêm ${10 - items.length} file`;
+    }
+
+    // ── Giữ nguyên các hàm gốc ──
+    function removeFile() {
+        document.getElementById('fileInput').value = '';
+        document.getElementById('fileSelected') && (document.getElementById('fileSelected').style.display = 'none');
+    }
+
+    function selectMethod(type) {
+        ['internal','external'].forEach(t => {
+            document.getElementById('opt-'+t).classList.remove('selected');
+            document.getElementById('field-'+t).style.display = 'none';
+        });
+        document.getElementById('opt-'+type).classList.add('selected');
+        document.getElementById('field-'+type).style.display = 'flex';
+        document.querySelector(`input[value="${type}"]`).checked = true;
+        document.getElementById('btnAs4').style.display = type === 'external' ? 'inline-flex' : 'none';
+    }
+
+    function downloadAs4Sample() {
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!-- AS4/ebMS 3.0 Sample Message — Bkav eMAS ERDS Demo -->
+<S:Envelope xmlns:S="http://www.w3.org/2003/05/soap-envelope"
+            xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/"
+            xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+  <S:Header>
+    <eb:Messaging>
+      <eb:UserMessage>
+        <eb:MessageInfo>
+          <eb:Timestamp>2026-05-29T09:15:30Z</eb:Timestamp>
+          <eb:MessageId>20260529.00123@emas.bkav.com</eb:MessageId>
+        </eb:MessageInfo>
+        <eb:PartyInfo>
+          <eb:From>
+            <eb:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">ERDS-VN-001</eb:PartyId>
+            <eb:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</eb:Role>
+          </eb:From>
+          <eb:To>
+            <eb:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">ERDS-VN-002</eb:PartyId>
+            <eb:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</eb:Role>
+          </eb:To>
+        </eb:PartyInfo>
+        <eb:CollaborationInfo>
+          <eb:Service type="urn:oasis:names:tc:ebcore:service-type:process">urn:e-delivery:emas:erds:relay</eb:Service>
+          <eb:Action>Submit</eb:Action>
+          <eb:ConversationId>conv-20260529-00123</eb:ConversationId>
+        </eb:CollaborationInfo>
+        <eb:MessageProperties>
+          <eb:Property name="MessageIdentifier">20260529.00123@emas.vn</eb:Property>
+          <eb:Property name="DeliveryMode">SignedConsent</eb:Property>
+          <eb:Property name="SenderERDSAddress">012345678901</eb:Property>
+          <eb:Property name="RecipientERDSAddress">034567890123</eb:Property>
+        </eb:MessageProperties>
+        <eb:PayloadInfo>
+          <eb:PartInfo href="cid:payload-001">
+            <eb:PartProperties>
+              <eb:Property name="MimeType">application/pdf</eb:Property>
+              <eb:Property name="FileName">HopDongLaoDong_2026.pdf</eb:Property>
+            </eb:PartProperties>
+          </eb:PartInfo>
+        </eb:PayloadInfo>
+      </eb:UserMessage>
+    </eb:Messaging>
+  </S:Header>
+  <S:Body/>
+</S:Envelope>`;
+        const blob = new Blob([xml], {type: 'application/xml'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'AS4_Sample_eMAS_ERDS.xml';
+        a.click();
+    }
+
+    function loadEmpInfo() {
+        const sel = document.getElementById('empSelect');
+        const opt = sel.options[sel.selectedIndex];
+        if (!opt.value) { document.getElementById('empInfo').style.display = 'none'; return; }
+        document.getElementById('ei-name').textContent = opt.getAttribute('data-name');
+        document.getElementById('ei-cccd').textContent = opt.getAttribute('data-cccd');
+        document.getElementById('ei-emas').textContent = opt.getAttribute('data-emas');
+        document.getElementById('ei-email').textContent = opt.getAttribute('data-email');
+        document.getElementById('empInfo').style.display = 'grid';
+    }
+
+    document.getElementById('composeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const files = document.querySelectorAll('#fileList .file-item');
+        const method = document.querySelector('input[name="method"]:checked');
+        const title = document.getElementById('msgTitle').value;
+
+        if (files.length === 0) { alert('Vui lòng upload ít nhất 1 file!'); return; }
+        if (!title) { alert('Vui lòng nhập tiêu đề thông điệp!'); return; }
+        if (!method) { alert('Vui lòng chọn người nhận!'); return; }
+        if (method.value === 'external') {
+            document.getElementById('modalInterErds').style.display = 'flex';
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmit');
+        btn.innerHTML = '⏳ Đang gửi...';
+        btn.disabled = true;
+        setTimeout(() => {
+            btn.innerHTML = '📤 Đang gửi qua ERDS...';
+            setTimeout(() => { window.location.href = 'S-MH-03-compose-result.html'; }, 1500);
+        }, 2000);
+    });
+</script>
+</body>
+</html>

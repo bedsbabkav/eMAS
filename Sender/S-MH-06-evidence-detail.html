@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết minh chứng - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6633; --primary-dark: #E65A2E; --primary-light: rgba(255,102,51,0.08);
+            --teal: #4DD4D5; --success: #52C41A; --info: #1890FF; --danger: #FF4D4F;
+            --n900: #1A1A1A; --n800: #333; --n700: #4D4D4D; --n600: #666; --n400: #999;
+            --n300: #CCC; --n200: #E0E0E0; --n50: #F7F7F7; --white: #FFF;
+            --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--n800); background: var(--n50); }
+        .app { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: 240px; background: var(--white); border-right: 1px solid var(--n200); padding: 16px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .logo { margin-bottom: 32px; padding: 8px; }
+        .logo-name { font-size: 16px; font-weight: 600; }
+        .logo-bkav { color: var(--primary); font-weight: 700; }
+        .logo-emas { color: var(--teal); font-weight: 600; }
+        .logo-sub { font-size: 11px; color: var(--n400); margin-top: 2px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: var(--n600); text-decoration: none; border-radius: 6px; transition: all 0.15s; font-size: 13px; }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+
+        /* Main */
+        .main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+        .topbar { background: var(--white); border-bottom: 1px solid var(--n200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; }
+        .topbar-user { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 600; flex-shrink: 0; }
+        .user-name { font-size: 13px; font-weight: 500; color: var(--n900); }
+        .user-id { font-size: 11px; color: var(--n400); }
+        .btn-logout { font-size: 12px; color: var(--n400); text-decoration: none; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--n200); }
+        .btn-logout:hover { color: var(--danger); background: #fff1f0; border-color: var(--danger); }
+        .main-body { flex: 1; padding: 24px; overflow: auto; }
+
+        .breadcrumb { display: flex; gap: 6px; font-size: 12px; color: var(--n600); margin-bottom: 6px; }
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+        .page-title { font-size: 20px; font-weight: 700; color: var(--n900); margin-bottom: 20px; }
+
+        .card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-bottom: 16px; }
+
+        /* Verification box */
+        .verification-box { padding: 20px; background: #f6ffed; border: 2px solid var(--success); border-radius: var(--radius); margin-bottom: 16px; }
+        .verification-title { font-size: 15px; font-weight: 600; color: var(--success); margin-bottom: 12px; }
+        .verification-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; color: var(--n800); }
+        .verification-item:last-of-type { margin-bottom: 12px; }
+        .btn-verify { padding: 7px 14px; background: transparent; border: 1px solid var(--success); color: var(--success); border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; font-family: inherit; }
+        .btn-verify:hover { background: var(--success); color: white; }
+        .btn-download { padding: 7px 14px; background: rgba(255,102,51,0.08); border: 1px solid rgba(255,102,51,0.3); color: var(--primary); border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; font-family: inherit; }
+        .btn-download:hover { background: rgba(255,102,51,0.18); border-color: var(--primary); }
+
+        /* Section */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--n200); }
+        .section-title { font-size: 15px; font-weight: 600; color: var(--n900); }
+        .ev-badge { display: inline-flex; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; background: #e6f7ff; color: #0958d9; }
+
+        /* Info grid */
+        .info-grid { display: grid; grid-template-columns: 180px 1fr; gap: 10px 16px; }
+        .info-label { font-size: 13px; font-weight: 500; color: var(--n600); }
+        .info-value { font-size: 13px; color: var(--n900); }
+
+        /* File hash list */
+        .file-hash-list { display: flex; flex-direction: column; gap: 6px; }
+        .file-hash-item { background: var(--n50); border: 1px solid var(--n200); border-radius: 6px; padding: 8px 10px; }
+        .file-hash-name { font-size: 12px; font-weight: 600; color: var(--n800); margin-bottom: 3px; }
+        .file-hash-val { font-family: 'Courier New', monospace; font-size: 11px; color: var(--n600); word-break: break-all; }
+
+        /* Code block */
+        .code-block {
+            background: #1E1E1E; color: #D4D4D4;
+            padding: 20px; border-radius: var(--radius);
+            font-family: 'Courier New', monospace; font-size: 12px;
+            line-height: 1.6; overflow-x: auto;
+            max-height: 400px; overflow-y: auto;
+            margin-bottom: 16px;
+        }
+        .code-block .cm { color: #6A9955; font-style: italic; }
+        .code-block .tg { color: #4EC9B0; }
+        .code-block .at { color: #9CDCFE; }
+
+        /* Buttons */
+        .btn { padding: 9px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: all 0.15s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-ghost { background: transparent; color: var(--n600); border: 1px solid var(--n200); }
+        .btn-ghost:hover { background: var(--n50); }
+
+        .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--primary); text-decoration: none; font-size: 13px; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(0,0,0,0.5); animation: fadeIn 0.2s; }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; border-radius: var(--radius); width: 90%; max-width: 680px; max-height: 80vh; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: slideDown 0.25s; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--n200); }
+        .modal-title { font-size: 16px; font-weight: 600; color: var(--n900); }
+        .modal-close { background: none; border: none; font-size: 22px; color: var(--n600); cursor: pointer; padding: 4px 8px; line-height: 1; }
+        .modal-close:hover { color: var(--n900); }
+        .modal-body { padding: 20px 24px; overflow-y: auto; max-height: calc(80vh - 130px); }
+        .modal-footer { padding: 14px 24px; border-top: 1px solid var(--n200); text-align: right; }
+
+        .verify-step { margin-bottom: 16px; padding: 14px 16px; background: var(--n50); border-radius: var(--radius); }
+        .verify-step:last-of-type { margin-bottom: 0; }
+        .verify-step-title { font-size: 13px; font-weight: 600; color: var(--n900); margin-bottom: 8px; }
+        .verify-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 5px; font-size: 13px; color: var(--n800); }
+        .verify-row:last-child { margin-bottom: 0; }
+        .vi { color: var(--success); font-weight: 700; flex-shrink: 0; }
+        .sub { margin-left: 20px; color: var(--n600); }
+        .conclusion { margin-top: 16px; padding: 14px; background: #f6ffed; border: 2px solid var(--success); border-radius: var(--radius); font-weight: 600; color: var(--success); text-align: center; font-size: 14px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideDown { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-name"><span class="logo-bkav">Bkav</span> | <span class="logo-emas">eMAS</span></div>
+            <div class="logo-sub">Dịch vụ Chứng thực Thông điệp Dữ liệu</div>
+        </div>
+        <nav>
+            <div class="nav-item"><a href="S-MH-01-dashboard.html" class="nav-link">🏠 Dashboard</a></div>
+            <div class="nav-item"><a href="S-MH-02-compose.html" class="nav-link">✏️ Tạo thông điệp mới</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">📥 Hộp thư đến</a></div>
+            <div class="nav-item"><a href="S-MH-04-sent.html" class="nav-link active">📤 Đã gửi</a></div>
+            <div class="nav-item"><a href="S-MH-05-trustlist.html" class="nav-link">🛡️ ERDS tin cậy</a></div>
+            <div class="nav-item"><a href="#" class="nav-link">⚙️ Cài đặt</a></div>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-user">
+                <div class="user-avatar">N</div>
+                <div>
+                    <div class="user-name">Nga xinh đẹp</div>
+                    <div class="user-id">012345678901@eMAS.vn</div>
+                </div>
+                <a href="S-MH-00-login.html" class="btn-logout">Đăng xuất</a>
+            </div>
+        </div>
+        <div class="main-body">
+
+            <div class="breadcrumb">
+                <a href="S-MH-01-dashboard.html">Dashboard</a>
+                <span>›</span>
+                <a href="S-MH-04-sent.html">Đã gửi</a>
+                <span>›</span>
+                <a href="S-MH-05-detail.html">Chi tiết thông điệp</a>
+                <span>›</span>
+                <span>Minh chứng chấp nhận gửi (A.1)</span>
+            </div>
+            <div class="page-title">🔐 Chi tiết minh chứng chấp nhận gửi (A.1)</div>
+
+            <!-- Verification status -->
+            <div class="verification-box">
+                <div class="verification-title">✅ Minh chứng hợp lệ</div>
+                <div class="verification-item">✓ Chữ ký số: Hợp lệ (HSM eMAS System)</div>
+                <div class="verification-item">✓ Dấu thời gian (TSA): Hợp lệ — VNPT CA · 29/05/2026 09:15:31 GMT+7</div>
+                <div class="verification-item">✓ Kiểm tra toàn vẹn (Hash): SHA-256 khớp</div>
+                <div class="verification-item">✓ Lưu trữ dài hạn (LTP): Đã lưu — Archive ID: LTP-2026-05-29-001</div>
+                <button class="btn-verify" onclick="openModal()">📋 Xem quy trình xác minh</button>
+            </div>
+
+            <!-- Metadata -->
+            <div class="card">
+                <div class="section-header">
+                    <div class="section-title">📄 Thông tin minh chứng</div>
+                    <span class="ev-badge">A.1 — SubmissionAcceptance</span>
+                </div>
+                <div class="info-grid">
+                    <div class="info-label">Evidence ID</div>
+                    <div class="info-value">EV-20260529-A1-NODE01-998877</div>
+                    <div class="info-label">MessageID</div>
+                    <div class="info-value">20260529.00123@emas.vn</div>
+                    <div class="info-label">Thời gian sự kiện</div>
+                    <div class="info-value">29/05/2026 09:15:30 GMT+7</div>
+                    <div class="info-label">Người gửi</div>
+                    <div class="info-value">012345678901@eMAS.vn (Nga xinh đẹp)</div>
+                    <div class="info-label">Người nhận</div>
+                    <div class="info-value">034567890123@eMAS.vn (Nguyễn Văn C)</div>
+                    <div class="info-label">Tài liệu</div>
+                    <div class="info-value">
+                        <div class="file-hash-list">
+                            <div class="file-hash-item" style="display:flex;align-items:center;justify-content:space-between;">
+                                <div>
+                                    <div class="file-hash-name">📄 HopDong_NVC_2026.pdf</div>
+                                    <div class="file-hash-val">2.1 MB</div>
+                                </div>
+                                <button class="btn-download" onclick="alert('Tải HopDong_NVC_2026.pdf')">📥 Tải</button>
+                            </div>
+                            <div class="file-hash-item" style="display:flex;align-items:center;justify-content:space-between;">
+                                <div>
+                                    <div class="file-hash-name">📝 PhuLuc_ThuongCa_2026.docx</div>
+                                    <div class="file-hash-val">380 KB</div>
+                                </div>
+                                <button class="btn-download" onclick="alert('Tải PhuLuc_ThuongCa_2026.docx')">📥 Tải</button>
+                            </div>
+                            <div class="file-hash-item" style="display:flex;align-items:center;justify-content:space-between;">
+                                <div>
+                                    <div class="file-hash-name">📊 BangLuong_NVC_Q1-2026.xlsx</div>
+                                    <div class="file-hash-val">140 KB</div>
+                                </div>
+                                <button class="btn-download" onclick="alert('Tải BangLuong_NVC_Q1-2026.xlsx')">📥 Tải</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence XML -->
+            <div class="card">
+                <div class="section-title" style="margin-bottom:16px;">📦 Nội dung minh chứng (XML)</div>
+                <div class="code-block">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;<span class="tg">Evidence</span> xmlns="urn:etsi:019:522:v1.2.1"&gt;
+  &lt;<span class="tg">EvidenceType</span>&gt;A.1&lt;/<span class="tg">EvidenceType</span>&gt;
+  &lt;<span class="tg">EvidenceIdentifier</span>&gt;EV-20260529-A1-NODE01-998877&lt;/<span class="tg">EvidenceIdentifier</span>&gt;
+  &lt;<span class="tg">MessageIdentifier</span>&gt;20260529.00123@emas.vn&lt;/<span class="tg">MessageIdentifier</span>&gt;
+  &lt;<span class="tg">EventTime</span>&gt;2026-05-29T09:15:30+07:00&lt;/<span class="tg">EventTime</span>&gt;
+
+  &lt;<span class="tg">SubmissionAcceptanceRejection</span>&gt;
+    &lt;<span class="tg">EventCode</span>&gt;SUBMISSION_ACCEPTANCE&lt;/<span class="tg">EventCode</span>&gt;
+    &lt;<span class="tg">SenderIdentifier</span>&gt;012345678901@eMAS.vn&lt;/<span class="tg">SenderIdentifier</span>&gt;
+    &lt;<span class="tg">RecipientIdentifier</span>&gt;034567890123@eMAS.vn&lt;/<span class="tg">RecipientIdentifier</span>&gt;
+  &lt;/<span class="tg">SubmissionAcceptanceRejection</span>&gt;
+
+  <span class="cm">&lt;!-- Chữ ký số --&gt;</span>
+  &lt;<span class="tg">Signature</span> xmlns="http://www.w3.org/2000/09/xmldsig#"&gt;
+    &lt;<span class="tg">SignedInfo</span>&gt;
+      &lt;<span class="tg">SignatureMethod</span> <span class="at">Algorithm</span>="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/&gt;
+      &lt;<span class="tg">DigestMethod</span> <span class="at">Algorithm</span>="http://www.w3.org/2001/04/xmlenc#sha256"/&gt;
+      &lt;<span class="tg">DigestValue</span>&gt;a7b3c9d2e1f4g5h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2y3z4&lt;/<span class="tg">DigestValue</span>&gt;
+    &lt;/<span class="tg">SignedInfo</span>&gt;
+    &lt;<span class="tg">SignatureValue</span>&gt;MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw7Lxj8F3...&lt;/<span class="tg">SignatureValue</span>&gt;
+    &lt;<span class="tg">KeyInfo</span>&gt;
+      &lt;<span class="tg">X509SubjectName</span>&gt;CN=eMAS HSM System, O=Bkav, C=VN&lt;/<span class="tg">X509SubjectName</span>&gt;
+    &lt;/<span class="tg">KeyInfo</span>&gt;
+  &lt;/<span class="tg">Signature</span>&gt;
+
+  <span class="cm">&lt;!-- Dấu thời gian TSA --&gt;</span>
+  &lt;<span class="tg">TimestampToken</span>&gt;
+    &lt;<span class="tg">Authority</span>&gt;VNPT CA Time Stamping Authority&lt;/<span class="tg">Authority</span>&gt;
+    &lt;<span class="tg">Timestamp</span>&gt;2026-05-29T09:15:31.247+07:00&lt;/<span class="tg">Timestamp</span>&gt;
+    &lt;<span class="tg">SerialNumber</span>&gt;TSA-20260529-091531-001&lt;/<span class="tg">SerialNumber</span>&gt;
+  &lt;/<span class="tg">TimestampToken</span>&gt;
+
+  <span class="cm">&lt;!-- Kiểm tra toàn vẹn --&gt;</span>
+  &lt;<span class="tg">HashAlgorithm</span>&gt;SHA-256&lt;/<span class="tg">HashAlgorithm</span>&gt;
+  &lt;<span class="tg">Attachments</span>&gt;
+    &lt;<span class="tg">Attachment</span> <span class="at">index</span>="1"&gt;
+      &lt;<span class="tg">FileName</span>&gt;HopDong_NVC_2026.pdf&lt;/<span class="tg">FileName</span>&gt;
+      &lt;<span class="tg">FileHash</span>&gt;a3f5c8d2e91b4076f3e2a1d0c9b8e7f645a2c3d4e5f60718293a4b5c6d7e8f9&lt;/<span class="tg">FileHash</span>&gt;
+    &lt;/<span class="tg">Attachment</span>&gt;
+    &lt;<span class="tg">Attachment</span> <span class="at">index</span>="2"&gt;
+      &lt;<span class="tg">FileName</span>&gt;PhuLuc_ThuongCa_2026.docx&lt;/<span class="tg">FileName</span>&gt;
+      &lt;<span class="tg">FileHash</span>&gt;b4e6d9a1c2f5e8073d4c5b6a7e8f901234567890abcdef1234567890abcdef12&lt;/<span class="tg">FileHash</span>&gt;
+    &lt;/<span class="tg">Attachment</span>&gt;
+    &lt;<span class="tg">Attachment</span> <span class="at">index</span>="3"&gt;
+      &lt;<span class="tg">FileName</span>&gt;BangLuong_NVC_Q1-2026.xlsx&lt;/<span class="tg">FileName</span>&gt;
+      &lt;<span class="tg">FileHash</span>&gt;c5f7e0b2d3a6f9082e5d6c7b8a9f012345678901bcdef2345678901bcdef2345&lt;/<span class="tg">FileHash</span>&gt;
+    &lt;/<span class="tg">Attachment</span>&gt;
+  &lt;/<span class="tg">Attachments</span>&gt;
+
+  <span class="cm">&lt;!-- Lưu trữ dài hạn --&gt;</span>
+  &lt;<span class="tg">LongTermPreservation</span>&gt;
+    &lt;<span class="tg">Stored</span>&gt;true&lt;/<span class="tg">Stored</span>&gt;
+    &lt;<span class="tg">ArchiveID</span>&gt;LTP-2026-05-29-001&lt;/<span class="tg">ArchiveID</span>&gt;
+    &lt;<span class="tg">StorageTimestamp</span>&gt;2026-05-29T09:15:32+07:00&lt;/<span class="tg">StorageTimestamp</span>&gt;
+  &lt;/<span class="tg">LongTermPreservation</span>&gt;
+&lt;/<span class="tg">Evidence</span>&gt;</div>
+                <button class="btn btn-primary" onclick="alert('Xuất file Evidence_A1_20260529_SIGNED.xml')">📥 Tải xuống minh chứng</button>
+            </div>
+
+            <a href="S-MH-05-detail.html" class="back-link">← Quay lại chi tiết thông điệp</a>
+
+        </div><!-- end main-body -->
+    </main>
+</div>
+
+<!-- Modal xác minh -->
+<div id="verificationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">🔐 Quy trình xác minh chữ ký</div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="verify-step">
+                <div class="verify-step-title">Bước 1 — Xác minh chuỗi chứng thư (Certificate Chain)</div>
+                <div class="verify-row"><span class="vi">✓</span><span>HSM eMAS System</span></div>
+                <div class="verify-row sub"><span>↓ cấp bởi</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Bkav CA</span></div>
+                <div class="verify-row sub"><span>↓ cấp bởi</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Root CA (Tin cậy)</span></div>
+            </div>
+            <div class="verify-step">
+                <div class="verify-step-title">Bước 2 — Kiểm tra hiệu lực chứng thư</div>
+                <div class="verify-row"><span class="vi">✓</span><span>Hiệu lực từ: 01/01/2025 00:00:00 GMT+7</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Hiệu lực đến: 01/01/2027 00:00:00 GMT+7</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Chứng thư còn hiệu lực tại thời điểm ký</span></div>
+            </div>
+            <div class="verify-step">
+                <div class="verify-step-title">Bước 3 — Kiểm tra thu hồi OCSP</div>
+                <div class="verify-row"><span class="vi">✓</span><span>OCSP: ocsp.bkav.com.vn</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Kết quả: Good (Chưa thu hồi)</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Cập nhật: 29/05/2026 09:00:00 GMT+7</span></div>
+            </div>
+            <div class="verify-step">
+                <div class="verify-step-title">Bước 4 — Xác minh chữ ký số</div>
+                <div class="verify-row"><span class="vi">✓</span><span>Thuật toán: RSA-SHA256</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Khóa công khai: RSA 2048-bit</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Chữ ký hợp lệ</span></div>
+            </div>
+            <div class="verify-step">
+                <div class="verify-step-title">Bước 5 — Kiểm tra toàn vẹn dữ liệu (Hash)</div>
+                <div class="verify-row"><span class="vi">✓</span><span>Hash gốc: a7b3c9d2e1f4g5h6i7j8k9l0m1n2o3p4</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Hash tính toán: a7b3c9d2e1f4g5h6i7j8k9l0m1n2o3p4</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Dữ liệu không bị thay đổi</span></div>
+            </div>
+            <div class="verify-step">
+                <div class="verify-step-title">Bước 6 — Xác minh dấu thời gian (TSA)</div>
+                <div class="verify-row"><span class="vi">✓</span><span>TSA: VNPT CA Time Stamping Authority</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Dấu thời gian: 29/05/2026 09:15:31.247+07:00</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Dấu thời gian hợp lệ</span></div>
+            </div>
+            <div class="conclusion">✅ KẾT LUẬN: Minh chứng có giá trị pháp lý</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="closeModal()">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal() { document.getElementById('verificationModal').classList.add('active'); }
+    function closeModal() { document.getElementById('verificationModal').classList.remove('active'); }
+    window.onclick = e => { if (e.target === document.getElementById('verificationModal')) closeModal(); };
+</script>
+</body>
+</html>

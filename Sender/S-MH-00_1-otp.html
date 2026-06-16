@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác minh 2 bước - Bkav eMAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F7F7F7 0%, #E8E8E8 100%);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .otp-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+            width: 100%; max-width: 520px;
+            padding: 32px 48px 40px;
+            position: relative;
+        }
+
+        .btn-back {
+            position: absolute; top: 24px; left: 24px;
+            background: none; border: none; cursor: pointer;
+            font-size: 22px; color: #FF6633; line-height: 1;
+            padding: 4px 8px;
+        }
+        .btn-back:hover { opacity: 0.7; }
+
+        .otp-title {
+            font-size: 26px; font-weight: 700;
+            color: #1A1A1A; text-align: center;
+            margin: 28px 0 16px;
+        }
+
+        .otp-subtitle {
+            font-size: 14px; color: #666;
+            text-align: center; margin-bottom: 8px; line-height: 1.6;
+        }
+        .otp-subtitle b { color: #333; }
+
+        .otp-sent-hint {
+            font-size: 13px; color: #52C41A;
+            text-align: center; margin-bottom: 28px;
+        }
+
+        .otp-boxes {
+            display: flex; justify-content: center; gap: 12px;
+            margin-bottom: 32px;
+        }
+        .otp-digit {
+            width: 56px; height: 56px;
+            border: 1px solid #CCCCCC; border-radius: 8px;
+            font-size: 24px; font-weight: 600; font-family: 'Inter', sans-serif;
+            text-align: center; transition: all 0.2s;
+        }
+        .otp-digit:focus {
+            outline: none; border-color: #FF6633;
+            box-shadow: 0 0 0 3px rgba(255,102,51,0.1);
+        }
+
+        .otp-actions {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .link-resend {
+            font-size: 14px; font-weight: 500;
+            color: #FF6633; background: none; border: none;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+        }
+        .link-resend:hover { text-decoration: underline; }
+        .link-resend:disabled { color: #999; cursor: not-allowed; text-decoration: none; }
+
+        .btn-next {
+            padding: 12px 32px;
+            background: #FF6633; color: white;
+            border: none; border-radius: 6px;
+            font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-next:hover { background: #E65A2E; }
+        .btn-next:disabled { background: #FFC2A8; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="otp-container">
+        <button class="btn-back" onclick="window.location.href='S-MH-00-login.html'" title="Quay lại đăng nhập">‹</button>
+
+        <h1 class="otp-title">Xác minh 2 bước</h1>
+
+        <p class="otp-subtitle">
+            Nhập mã xác minh gồm 6 số đã gửi đến email <b>hr***@bkav.com.vn</b>
+        </p>
+        <p class="otp-sent-hint" id="sentHint">✅ Mã OTP đã được gửi — hiệu lực 5 phút</p>
+
+        <div class="otp-boxes" id="otpBoxes">
+            <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+            <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+            <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+            <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+            <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+            <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+        </div>
+
+        <div class="otp-actions">
+            <button type="button" class="link-resend" id="btnResend" onclick="resendOTP()" disabled>Gửi lại (60s)</button>
+            <button type="button" class="btn-next" id="btnNext" onclick="verifyOTP()" disabled>Tiếp theo</button>
+        </div>
+    </div>
+
+    <script>
+        const digits = Array.from(document.querySelectorAll('.otp-digit'));
+        const btnNext = document.getElementById('btnNext');
+        const btnResend = document.getElementById('btnResend');
+        let countdown = 0, timer = null;
+
+        // OTP tự động gửi khi vào màn → khởi động đếm ngược gửi lại ngay
+        startCountdown();
+        digits[0].focus();
+
+        digits.forEach((d, i) => {
+            d.addEventListener('input', () => {
+                d.value = d.value.replace(/\D/g, '');
+                if (d.value && i < digits.length - 1) digits[i + 1].focus();
+                updateNextState();
+            });
+            d.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !d.value && i > 0) digits[i - 1].focus();
+            });
+            d.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const text = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+                text.split('').forEach((c, j) => { if (digits[j]) digits[j].value = c; });
+                digits[Math.min(text.length, 5)].focus();
+                updateNextState();
+            });
+        });
+
+        function updateNextState() {
+            btnNext.disabled = digits.some(d => !d.value);
+        }
+
+        function startCountdown() {
+            countdown = 60;
+            btnResend.disabled = true;
+            clearInterval(timer);
+            timer = setInterval(() => {
+                btnResend.textContent = `Gửi lại (${countdown}s)`;
+                countdown--;
+                if (countdown < 0) {
+                    clearInterval(timer);
+                    btnResend.disabled = false;
+                    btnResend.textContent = 'Gửi lại mã';
+                }
+            }, 1000);
+        }
+
+        function resendOTP() {
+            document.getElementById('sentHint').textContent = '✅ Mã OTP mới đã được gửi — hiệu lực 5 phút';
+            digits.forEach(d => d.value = '');
+            digits[0].focus();
+            updateNextState();
+            startCountdown();
+        }
+
+        function verifyOTP() {
+            window.location.href = 'S-MH-01-dashboard.html';
+        }
+    </script>
+</body>
+</html>

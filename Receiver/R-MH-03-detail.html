@@ -226,7 +226,7 @@
                 <div class="panel">
                     <div class="panel-header" style="display:flex;align-items:center;gap:12px;">
                         <span>📁 Tài liệu</span>
-                        <span style="font-size:12px;font-weight:500;color:#237804;">✅ Đã xác minh toàn vẹn dữ liệu — 3/3 file (SHA-256)</span>
+                        <span id="hash-verified-badge" style="display:none;font-size:12px;font-weight:500;color:#237804;">✅ Đã xác minh toàn vẹn dữ liệu — 3/3 file (SHA-256)</span>
                     </div>
                     <div class="panel-body" style="padding:14px 20px;">
                         <div class="file-list">
@@ -606,6 +606,7 @@ function onSignSuccess() {
     document.getElementById('ev-c3-done').style.display = 'block';
     document.getElementById('ev-e1-pending').style.display = 'none';
     document.getElementById('ev-e1-done').style.display = 'block';
+    document.getElementById('hash-verified-badge').style.display = 'inline';
     // Thay sign-actions thành thông báo đã ký
     document.getElementById('sign-actions').innerHTML =
         '<div style="padding:14px 0;display:flex;align-items:center;gap:10px;color:#237804;font-size:13px;font-weight:600;">' +
@@ -702,6 +703,7 @@ if (params.get('signed') === '1' || params.get('action') === 'accept') {
     document.getElementById('ev-c3-done').style.display = 'block';
     document.getElementById('ev-e1-pending').style.display = 'none';
     document.getElementById('ev-e1-done').style.display = 'block';
+    document.getElementById('hash-verified-badge').style.display = 'inline';
 }
 </script>
 </body>

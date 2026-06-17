@@ -165,7 +165,7 @@
                 <div class="verification-title">✅ Minh chứng hợp lệ</div>
                 <div class="verification-item">✓ Chữ ký số: Hợp lệ (HSM eMAS System)</div>
                 <div class="verification-item">✓ Dấu thời gian (TSA): Hợp lệ — VNPT CA · 29/05/2026 09:15:31 GMT+7</div>
-                <div class="verification-item">✓ Kiểm tra toàn vẹn (Hash): SHA-256 khớp</div>
+                <div class="verification-item">✓ Kiểm tra toàn vẹn (Hash): SHA-256 khớp — 3/3 file</div>
                 <div class="verification-item">✓ Lưu trữ dài hạn (LTP): Đã lưu — Archive ID: LTP-2026-05-29-001</div>
                 <button class="btn-verify" onclick="openModal()">📋 Xem quy trình xác minh</button>
             </div>
@@ -185,35 +185,7 @@
                     <div class="info-value">29/05/2026 09:15:30 GMT+7</div>
                     <div class="info-label">Người gửi</div>
                     <div class="info-value">012345678901@eMAS.vn (Nga xinh đẹp)</div>
-                    <div class="info-label">Người nhận</div>
-                    <div class="info-value">034567890123@eMAS.vn (Nguyễn Văn C)</div>
-                    <div class="info-label">Tài liệu</div>
-                    <div class="info-value">
-                        <div class="file-hash-list">
-                            <div class="file-hash-item" style="display:flex;align-items:center;justify-content:space-between;">
-                                <div>
-                                    <div class="file-hash-name">📄 HopDong_NVC_2026.pdf</div>
-                                    <div class="file-hash-val">2.1 MB</div>
-                                </div>
-                                <button class="btn-download" onclick="alert('Tải HopDong_NVC_2026.pdf')">📥 Tải</button>
-                            </div>
-                            <div class="file-hash-item" style="display:flex;align-items:center;justify-content:space-between;">
-                                <div>
-                                    <div class="file-hash-name">📝 PhuLuc_ThuongCa_2026.docx</div>
-                                    <div class="file-hash-val">380 KB</div>
-                                </div>
-                                <button class="btn-download" onclick="alert('Tải PhuLuc_ThuongCa_2026.docx')">📥 Tải</button>
-                            </div>
-                            <div class="file-hash-item" style="display:flex;align-items:center;justify-content:space-between;">
-                                <div>
-                                    <div class="file-hash-name">📊 BangLuong_NVC_Q1-2026.xlsx</div>
-                                    <div class="file-hash-val">140 KB</div>
-                                </div>
-                                <button class="btn-download" onclick="alert('Tải BangLuong_NVC_Q1-2026.xlsx')">📥 Tải</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
 
             <!-- Evidence XML -->
@@ -320,10 +292,11 @@
                 <div class="verify-row"><span class="vi">✓</span><span>Chữ ký hợp lệ</span></div>
             </div>
             <div class="verify-step">
-                <div class="verify-step-title">Bước 5 — Kiểm tra toàn vẹn dữ liệu (Hash)</div>
-                <div class="verify-row"><span class="vi">✓</span><span>Hash gốc: a7b3c9d2e1f4g5h6i7j8k9l0m1n2o3p4</span></div>
-                <div class="verify-row"><span class="vi">✓</span><span>Hash tính toán: a7b3c9d2e1f4g5h6i7j8k9l0m1n2o3p4</span></div>
-                <div class="verify-row"><span class="vi">✓</span><span>Dữ liệu không bị thay đổi</span></div>
+                <div class="verify-step-title">Bước 5 — Kiểm tra toàn vẹn dữ liệu (Hash) — 3/3 file</div>
+                <div class="verify-row"><span class="vi">✓</span><span>HopDong_NVC_2026.pdf — Hash khớp (a3f5c8d2...)</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>PhuLuc_ThuongCa_2026.docx — Hash khớp (b4e6d9a1...)</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>BangLuong_NVC_Q1-2026.xlsx — Hash khớp (c5f7e0b2...)</span></div>
+                <div class="verify-row"><span class="vi">✓</span><span>Tất cả tài liệu không bị thay đổi</span></div>
             </div>
             <div class="verify-step">
                 <div class="verify-step-title">Bước 6 — Xác minh dấu thời gian (TSA)</div>
